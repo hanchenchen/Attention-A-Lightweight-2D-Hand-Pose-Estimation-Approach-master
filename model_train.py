@@ -5,7 +5,7 @@ from clr import *
 from attention_blur import *
 import os
 import argparse
-import frei_hand
+from frei_hand import load_training_dataset, load_dataset
 import json
 
 # Model's architecture
@@ -96,7 +96,6 @@ def create_model():
     model.compile(optimizer=keras.optimizers.SGD(), loss=rmse, metrics=['accuracy'])
     return model
 
-
 def rmse(x, y):
     x = tf.math.sqrt(tf.keras.losses.MSE(x, y))
     return x
@@ -109,29 +108,21 @@ choosed = ['FreiHAND_pub_v2', 'Panoptic']
 
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
 
-images_path = tf.io.gfile.glob(configs['images_path'])
-num = len(images_path)
-training = images_path[:int(num*0.8)]
-validation = images_path[int(num*0.8):-int(num*0.1)]
-testing = images_path[-int(num*0.1):]
-
 
 ########## Dataset ##############
-print('Generating datasets:')
-print('len(traning_dataset):', len(training))
-print('len(validation_dataset):', len(validation))
-print('len(testing_dataset):', len(testing))
-print('the total number: ', num)
-
-traning_dataset, validation_dataset = frei_hand.generate_dataset(training, validation)
+print('Generating datasets...')
+traning_dataset = load_training_dataset('training')
+validation_dataset = load_training_dataset('validation')
+tf.print(traning_dataset, validation_dataset)
 print('Generate the model')
 ########### HYPERPARAMETERS ###########
-BATCH_SIZE = configs['batch_size']  # 注意load_dataset也要改
+BATCH_SIZE = configs['batch_size']
 step_factor = configs['step_factor']
 EPOCHS = configs['epochs']
-steps_per_epoch = int(len(training) // BATCH_SIZE)
-val_steps = int(len(validation) // BATCH_SIZE)
+steps_per_epoch = int(configs['size']*0.8 // BATCH_SIZE)
+val_steps = int(configs['size']*0.1 // BATCH_SIZE)
 step_size = steps_per_epoch * step_factor
+print(steps_per_epoch, val_steps)
 # Your model's name
 print('The model will be saved in directory:', args.dataset_name)
 

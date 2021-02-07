@@ -4,7 +4,7 @@
   "images_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training/rgb/*",
   "K_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training_K.json",
   "xyz_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training_xyz.json",
-  "group": "G1",
+  "size": 130240,
   "batch_size": 32,
   "step_factor": 8,
   "epochs": 25000,

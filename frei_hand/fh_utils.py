@@ -140,7 +140,7 @@ def load_db_annotation(base_path, set_name=None):
     assert len(K_list) == len(xyz_list), 'Size mismatch.'
 
     print('Loading of %d samples done in %.2f seconds' % (len(K_list), time.time()-t))
-    return zip(K_list, mano_list, xyz_list)
+    return K_list, mano_list, xyz_list
 
 
 class sample_version:

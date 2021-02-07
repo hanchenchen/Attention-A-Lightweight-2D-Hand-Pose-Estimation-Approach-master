@@ -12,14 +12,15 @@ K_list = tf.convert_to_tensor(json.load(K_path))
 xyz_list = tf.convert_to_tensor(json.load(xyz_path))
 K_path.close()
 xyz_path.close()
+
 def read_label(filename):
     idx = tf.strings.to_number(tf.strings.substr(filename, -12, 8), out_type=tf.int32)
+    idx %= 32560
     K, xyz = K_list[idx], xyz_list[idx]
     uv = tf.transpose(tf.matmul(K, tf.transpose(xyz)))
     label_idx = uv[:, :2] / uv[:, -1:]
     # tf.print(filename, label_idx)
     return label_idx
-
 def read_freihand(filename):
     image = tf.io.read_file(filename)
     image = tf.image.decode_jpeg(image, channels=3)

@@ -16,12 +16,11 @@ def show_training_samples(base_path, version, num2show=None, render_mano=False):
     base_path = os.path.join(dataset_dir, base_path)
     print(base_path)
     # load annotations
-    db_data_anno = load_db_annotation(base_path, 'training')
+    K_list, mano_list, xyz_list = load_db_annotation(base_path, 'training')
 
     # iterate over all samples
-    for idx in range(len(db_data_anno)):
-        if idx >= num2show:
-            break
+    for idx in range(117216, 117216+1):
+        idx %= 32560
 
         # load image and mask
         img = read_img(idx, base_path, 'training', version)
@@ -29,7 +28,7 @@ def show_training_samples(base_path, version, num2show=None, render_mano=False):
         # msk = read_msk(idx, base_path)
 
         # annotation for this frame
-        K, mano, xyz = db_data_anno[idx]
+        K, mano, xyz = K_list[idx],mano_list[idx], xyz_list[idx]
         # print(db_data_anno)
         K, mano, xyz = [np.array(x) for x in [K, mano, xyz]]
         uv = projectPoints(xyz, K)
