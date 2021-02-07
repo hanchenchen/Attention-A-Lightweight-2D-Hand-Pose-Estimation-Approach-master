@@ -63,37 +63,9 @@ def show_training_samples(base_path, version, num2show=None, render_mano=False):
         plt.savefig(os.path.join(dataset_dir, 'showed_samples/notated'+str(idx)+'.png'))
         plt.show()
 
-def show_result(filename, prediction):
-    idx = tf.strings.to_number(tf.strings.substr(filename, -12, 8), out_type=tf.int32)
-    configs = json.load(open('configs/FreiHAND_pub_v2.json'))
-    # load annotations
-    db_data_anno = load_db_annotation(configs['dataset_path'], 'training')
-
-    # iterate over all samples
-    img = read_img(idx, configs['dataset_path'], 'training', None)
-    # annotation for this frame
-    K, mano, xyz = db_data_anno[idx]
-    # print(db_data_anno)
-    K, mano, xyz = [np.array(x) for x in [K, mano, xyz]]
-    uv = projectPoints(xyz, K)
-    print('The notations of the', idx, ' sample')
-    print(uv)
-
-    # show
-    fig = plt.figure()
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
-    ax1.imshow(img)
-    # ax2.imshow(msk if msk_rendered is None else msk_rendered)
-    plot_hand(ax1, uv, order='uv')
-    # plot_hand(ax2, uv, order='uv')
-    ax1.axis('off')
-    ax2.axis('off')
-    file_path = os.path.realpath(__file__)  # current location
-    dataset_dir = os.path.dirname(file_path)
-    plt.savefig(os.path.join(dataset_dir, 'showed_samples/GroundTruth'+str(idx)+'.png'))
-    plt.show()
-
+def show_result(img, prediction):
+    print('The notations of the sample')
+    print(prediction)
     # show
     fig = plt.figure()
     ax1 = fig.add_subplot(121)

@@ -3,7 +3,7 @@ import numpy as np
 import logging
 import matplotlib.pyplot as plt
 
-def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list):
+def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = [0.1, 0.15, 0.2, 0.25, 0.3]):
     """
     Get PCK with different sigma threshold
     :param predict_labels_dict:  dict  element:  'img_name':{'prd_label':[list, coordinates of 21 keypoints],
