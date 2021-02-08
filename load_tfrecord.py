@@ -34,13 +34,13 @@ def name_image_label(sample):
     label = tf.reshape(label, [21, 2])
     return sample['name'], image, label/224.
 
-def load_training_dataset(dataset, name = 'trainig'):
-    raw_image_dataset = tf.data.TFRecordDataset(dataset + '/' + name + '.tfrecords')
+def load_training_dataset(dataset_name, name = 'trainig'):
+    raw_image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
     # Create a dictionary describing the features.
     dataset = raw_image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
     dataset = dataset.map(map_func=image_label, num_parallel_calls=AUTO)
     # dataset = dataset.cache()
-    configs = json.load(open('configs/' + name + '.json'))
+    configs = json.load(open('configs/' + dataset_name + '.json'))
     BATCH_SIZE = configs['batch_size']
     dataset = dataset.shuffle(BATCH_SIZE*10)
     dataset = dataset.repeat()
@@ -49,8 +49,8 @@ def load_training_dataset(dataset, name = 'trainig'):
     return dataset
 
 # finite and ordered dataset
-def load_dataset(dataset, name = 'testing'):
-    raw_image_dataset = tf.data.TFRecordDataset(dataset + '/' + name + '.tfrecords')
+def load_dataset(dataset_name, name = 'testing'):
+    raw_image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
     # Create a dictionary describing the features.
     dataset = raw_image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
     dataset = dataset.map(map_func=name_image_label, num_parallel_calls=AUTO)

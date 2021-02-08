@@ -27,7 +27,7 @@ def serialize_example(name, image, label):
 
 def read_label(filename):
     label = json.load(open(filename[:-4]+'.json'))
-    return tf.convert_to_tensor(label['hand_pts'])[:, :2]
+    return tf.convert_to_tensor(label)[:,:2]
 start_time = time.time()
 configs = json.load(open('configs/Panoptic.json'))
 print('Reading images...')
@@ -50,7 +50,7 @@ for name, paths in dataset.items():
             label = read_label(path)
             image_string = open(path, 'rb').read()
             label_string = tf.io.serialize_tensor(label)
-            path = path[-18:].encode('utf-8')
+            path = path.split('/')[-1].encode('utf-8')
             tf_example = serialize_example(path, image_string, label_string)
             writer.write(tf_example)
 end_time = time.time()
