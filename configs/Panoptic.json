@@ -1,0 +1,11 @@
+{
+  "name": "Panoptic",
+  "dataset_path":"/HDD/ningbo/fileshare/Panoptic",
+  "images_path":"/HDD/ningbo/fileshare/Panoptic/hand_labels/training/*.jpg",
+  "size": 2758,
+  "batch_size": 16,
+  "step_factor": 8,
+  "epochs": 25000,
+  "learning_rate": 1e-4
+}
+

@@ -1,2 +1,5 @@
 .idea
-frei_hand/tfrecord/*
+*/logs/*
+*.tfrecords
+*.hdf5
+*

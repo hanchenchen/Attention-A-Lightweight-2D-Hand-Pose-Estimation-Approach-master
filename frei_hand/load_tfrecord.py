@@ -5,8 +5,7 @@ import time
 import matplotlib.pyplot as plt
 
 AUTO = tf.data.experimental.AUTOTUNE
-configs = json.load(open('configs/FreiHAND_pub_v2.json'))
-BATCH_SIZE = configs['batch_size']
+
 
 def _parse_image_function(example_proto):
   # Parse the input tf.train.Example proto using the dictionary above.
@@ -17,7 +16,7 @@ def _parse_image_function(example_proto):
   }
   return tf.io.parse_single_example(example_proto, image_feature_description)
 
-def process_training(sample):
+def image_label(sample):
     image = tf.image.decode_jpeg(sample['image'])
     image = tf.cast(image, tf.float32)
     image = tf.reshape(image, [224, 224, 3])
@@ -26,32 +25,43 @@ def process_training(sample):
     label = tf.reshape(label, [21, 2])
     return image, label/224.
 
-def load_training_dataset(name = 'trainig'):
-    raw_image_dataset = tf.data.TFRecordDataset('frei_hand/tfrecord/'+name+'.tfrecords')
+def name_image_label(sample):
+    image = tf.image.decode_jpeg(sample['image'])
+    image = tf.cast(image, tf.float32)
+    image = tf.reshape(image, [224, 224, 3])
+    image = tf.image.per_image_standardization(image)
+    label = tf.io.parse_tensor(sample['label'], tf.float32)
+    label = tf.reshape(label, [21, 2])
+    return sample['name'], image, label/224.
+
+def load_training_dataset(dataset, name = 'trainig'):
+    raw_image_dataset = tf.data.TFRecordDataset(dataset + '/' + name + '.tfrecords')
     # Create a dictionary describing the features.
     dataset = raw_image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
-    dataset = dataset.map(map_func=process_training, num_parallel_calls=AUTO)
-    dataset = dataset.cache()
+    dataset = dataset.map(map_func=image_label, num_parallel_calls=AUTO)
+    # dataset = dataset.cache()
+    configs = json.load(open('configs/' + name + '.json'))
+    BATCH_SIZE = configs['batch_size']
     dataset = dataset.shuffle(BATCH_SIZE*10)
     dataset = dataset.repeat()
     dataset = dataset.batch(BATCH_SIZE, drop_remainder=True)
     dataset = dataset.prefetch(AUTO)
     return dataset
 
-def load_dataset(name):
-    raw_image_dataset = tf.data.TFRecordDataset('frei_hand/tfrecord/'+name+'.tfrecords')
+# finite and ordered dataset
+def load_dataset(dataset, name = 'testing'):
+    raw_image_dataset = tf.data.TFRecordDataset(dataset + '/' + name + '.tfrecords')
     # Create a dictionary describing the features.
-    dataset = raw_image_dataset.map(_parse_image_function, num_parallel_calls=AUTO)
-    # ?? dataset = dataset.map(process_training, num_parallel_calls=AUTO)
-    # dataset = dataset.map()
+    dataset = raw_image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
+    dataset = dataset.map(map_func=name_image_label, num_parallel_calls=AUTO)
     return dataset
 
-'''
+
 from PIL import Image, ImageDraw
 
 def hand_pose_estimation(im, coordinates, name):
     # Type: list,   Length:21,      element:[x,y]
-    save_path = 'frei_hand/showed_samples/sample1.jpg'
+    save_path = 'Panoptic/sample1.jpg'
     ori_im = draw_point(coordinates, im)
     print('save output to ', save_path)
     ori_im.save(save_path)
@@ -95,7 +105,7 @@ def draw_point(points, im):
         i = i + 1
     return im
 
-testing = load_dataset('training')
+testing = load_dataset('Panoptic','testing')
 i = 3
 for sample in testing:
     while i:
@@ -111,7 +121,7 @@ for sample in testing:
     hand_pose_estimation(pil_img, label, name)
     pil_img.show()
     break
-'''
+
 
 
 

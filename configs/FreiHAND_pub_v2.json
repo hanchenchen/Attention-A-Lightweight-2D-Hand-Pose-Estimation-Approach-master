@@ -5,7 +5,7 @@
   "K_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training_K.json",
   "xyz_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training_xyz.json",
   "size": 130240,
-  "batch_size": 32,
+  "batch_size": 16,
   "step_factor": 8,
   "epochs": 25000,
   "learning_rate": 1e-4
