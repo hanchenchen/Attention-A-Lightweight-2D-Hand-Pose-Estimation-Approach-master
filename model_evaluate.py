@@ -33,7 +33,7 @@ for i in range(len(results)):
     ground_truth[names[i]] = labels[i]
 json.dump(predictions, open(args.dataset_name + '/predictions.json', 'w'))
 json.dump(ground_truth, open(args.dataset_name + '/ground_truth.json', 'w'))
-pck_results = get_pck_with_sigma(predictions, ground_truth)
+pck_results = get_pck_with_sigma(predictions, ground_truth, [i*0.05 for i in range(19)])
 print(pck_results)
 json.dump(pck_results, open(args.dataset_name + '/pck_results.json', 'w'))
 '''print(results)
