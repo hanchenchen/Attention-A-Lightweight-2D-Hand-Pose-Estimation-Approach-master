@@ -56,6 +56,36 @@ def load_dataset(dataset_name, name = 'testing'):
     dataset = dataset.map(map_func=name_image_label, num_parallel_calls=AUTO)
     return dataset
 
+def get_name(sample):
+    return sample['name']
+
+def get_image(sample):
+    image = tf.image.decode_jpeg(sample['image'], channels=3)
+    image = tf.cast(image, tf.float32)
+    image = tf.reshape(image, [224, 224, 3])
+    image = tf.image.per_image_standardization(image)
+    return image
+def get_label(sample):
+    label = tf.io.parse_tensor(sample['label'], tf.float32)
+    label = tf.reshape(label, [21, 2])
+    return label/224.
+
+def add_batch(dataset):
+    dataset = dataset.batch(1, drop_remainder=True)
+    dataset = dataset.prefetch(AUTO)
+    return dataset
+def load_xyz_dataset(dataset_name, name = 'testing'):
+    name_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
+    image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
+    label_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
+    # Create a dictionary describing the features.
+    name_dataset = name_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
+    image_dataset = image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
+    label_dataset = label_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
+    name_dataset = name_dataset.map(map_func=get_name, num_parallel_calls=AUTO)
+    image_dataset = image_dataset.map(map_func=get_image, num_parallel_calls=AUTO)
+    label_dataset = label_dataset.map(map_func=get_label, num_parallel_calls=AUTO)
+    return add_batch(name_dataset), add_batch(image_dataset), add_batch(label_dataset) #batch!!!??? 无法理解为什么不加batch就不行
 '''
 from PIL import Image, ImageDraw
 

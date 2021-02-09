@@ -15,7 +15,7 @@ def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = [0.1, 0.15, 
     pck_dict = {}
     for im in predict_labels_dict:
         gt_label = gt_labels[im]        # list    len:21      element:[x, y]
-        pred_label = predict_labels_dict[im]['pred_label']  # list    len:21      element:[x, y]
+        pred_label = predict_labels_dict[im]['prd_label']  # list    len:21      element:[x, y]
         im_size = predict_labels_dict[im]['resol']
         for sigma in sigma_list:
             if sigma not in pck_dict:
@@ -48,3 +48,7 @@ def PCK(predict, target, bb_size=256, sigma=0.1):
         if dis < sigma * bb_size:
             pck += 1
     return pck / 21.0
+'''import json
+predictions = json.load(open('Panoptic/predictions.json'))
+groud_truth = json.load(open('Panoptic/ground_truth.json'))
+get_pck_with_sigma(predictions, groud_truth)'''
