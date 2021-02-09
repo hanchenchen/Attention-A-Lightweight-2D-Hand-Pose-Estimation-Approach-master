@@ -8,7 +8,7 @@ import argparse
 from load_tfrecord import load_training_dataset, load_dataset
 import json
 from model import create_model
-os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+os.environ['CUDA_VISIBLE_DEVICES'] = "0, 1, 2"
 
 
 parser = argparse.ArgumentParser(description='use the specified dataset to train the model.')
@@ -30,8 +30,8 @@ print('Generate the model')
 BATCH_SIZE = configs['batch_size']
 step_factor = configs['step_factor']
 EPOCHS = configs['epochs']
-steps_per_epoch = 10 # int(configs['size']*0.8 // BATCH_SIZE)
-val_steps = 10 # int(configs['size']*0.1 // BATCH_SIZE)
+steps_per_epoch = int(configs['size']*0.8 // BATCH_SIZE)
+val_steps = int(configs['size']*0.1 // BATCH_SIZE)
 step_size = steps_per_epoch * step_factor
 print(steps_per_epoch, val_steps)
 # Your model's name

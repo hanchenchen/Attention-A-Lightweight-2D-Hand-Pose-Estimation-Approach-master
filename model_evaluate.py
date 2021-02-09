@@ -2,27 +2,28 @@ import argparse
 import json
 import os
 from model import create_model
-from load_tfrecord import load_dataset
+from load_tfrecord import load_dataset, load_training_dataset
 import tensorflow as tf
 from model import create_model
 
-os.environ['CUDA_VISIBLE_DEVICES'] = "0,1"
+os.environ['CUDA_VISIBLE_DEVICES'] = "1"
 parser = argparse.ArgumentParser(description='use the specified dataset to train the model.')
 parser.add_argument('dataset_name', type=str, default='FreiHAND_pub_v2',
                     help='choose one dataset.')
 args = parser.parse_args()
 choosed = ['FreiHAND_pub_v2', 'Panoptic']
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
-testing = load_dataset(args.dataset_name, 'testing')
+testing = load_training_dataset(args.dataset_name, 'testing')
 filepath = args.dataset_name + '/weights.hdf5'
 model = create_model()
-## model.load_weights(filepath)
-'''predictions = {}
+model.load_weights(filepath)
+predictions = {}
 ground_truth = {}
-tf.print(model.predict(testing, batch_size = 1))
+print(testing)
+print(model.predict(testing, batch_size = 1, steps = 10))
 for name, image, label in testing:
     print(image, type(image))
-    break'''
+    break
 
 '''
 # Evaluate the model on the test data using `evaluate`

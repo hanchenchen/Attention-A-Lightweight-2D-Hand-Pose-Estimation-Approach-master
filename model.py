@@ -15,7 +15,7 @@ def avg_pool(inp, pool=2, stride=2):
 def conv(inp, kernel, filt, dilation=2, stride=1, pad='same'):
     x = layers.Conv2D(filters=filt, kernel_size=kernel, strides=stride, padding=pad,
                       kernel_regularizer=keras.regularizers.l2(0.01))(inp)
-    return tf.cast(x, tf.float32)
+    return x
 
 
 def aug_block(inp, fout, dk, dv, nh, kernel=11):
@@ -27,12 +27,10 @@ def aug_block(inp, fout, dk, dv, nh, kernel=11):
 
 
 def ARB(inp, fout, dk, dv, nh, kernel, aug=True):
-    print('!!!!!1ARB', inp)
     x = conv(inp, kernel=1, filt=fout * 4, pad='same')
     x = layers.BatchNormalization(axis=-1, fused=True)(x)
     x = layers.Activation('Mish')(x)
     x = layers.DepthwiseConv2D(kernel_size=kernel, strides=1, padding='same')(x)
-    print('!!!!!!1ARB', x)
     x = layers.BatchNormalization(axis=-1, fused=True)(x)
     x = layers.Activation('Mish')(x)
     if aug == True:
@@ -41,8 +39,6 @@ def ARB(inp, fout, dk, dv, nh, kernel, aug=True):
     x = conv(x, kernel=1, filt=fout, pad='same')
     x = layers.BatchNormalization(axis=-1, fused=True)(x)
     x = layers.Activation('Mish')(x)
-    x = tf.cast(x, tf.float32)
-    print('!!!!!3ARB', x)
     return x
 
 
@@ -50,16 +46,14 @@ def transition(inp, filters):
     x = conv(inp, kernel=1, filt=filters, pad='same')
     x = BlurPool2D()(x)
     x = layers.BatchNormalization(axis=-1, fused=True)(x)
-    return tf.cast(x, tf.float32)
+    return x
 
 
 def dense(x, kernel, num, nh=4, filters=10, aug=True):
-    x = tf.cast(x, tf.float32)
     x_list = [x]
 
     for i in range(num):
         x = ARB(x, filters, 0.1, 0.1, nh, kernel, aug)
-        print(x_list, x)
         x_list.append(x)
         x = tf.concat(x_list, axis=-1)
     return x

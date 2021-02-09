@@ -200,10 +200,10 @@ class AttentionAugmentation2D(Layer):
         shape = tf.shape(x)
         shape = [shape[i] for i in range(3)]
         B, Nh, L, = shape
-        col_pad = tf.zeros(tf.stack([B, Nh, L, 1]), dtype=tf.bfloat16)
+        col_pad = tf.zeros(tf.stack([B, Nh, L, 1]), dtype=tf.float32)
         x = tf.concat([x, col_pad], axis=3)
         flat_x = tf.reshape(x, [B, Nh, L * 2 * L])
-        flat_pad = tf.zeros(tf.stack([B, Nh, L - 1]), dtype=tf.bfloat16)
+        flat_pad = tf.zeros(tf.stack([B, Nh, L - 1]), dtype=tf.float32)
         flat_x_padded = tf.concat([flat_x, flat_pad], axis=2)
         final_x = tf.reshape(flat_x_padded, [B, Nh, L + 1, 2 * L - 1])
         final_x = final_x[:, :, :L, L - 1:]
@@ -246,7 +246,7 @@ def augmented_conv2d(ip, filters, kernel_size=(3, 3), strides=(1, 1),
 
 class Mish(Activation):
 
-    def __init__(self, activation, dtype=tf.bfloat16, **kwargs):
+    def __init__(self, activation, dtype=tf.float32, **kwargs):
         super(Mish, self).__init__(activation, dtype=dtype, **kwargs)
         self.__name__ = 'Mish'
 
@@ -290,7 +290,7 @@ class BlurPool2D(tf.keras.layers.Layer):
         k = k[:, None] * k[None, :]
         k = k / np.sum(k)
         k = np.tile(k[:, :, None, None], (1, 1, input_shape[-1], 1))
-        self.kernel = tf.keras.backend.constant(k, dtype=tf.bfloat16)
+        self.kernel = tf.keras.backend.constant(k, dtype=tf.float32)
 
     def compute_output_shape(self, input_shape):
         height = input_shape[1] // self.strides[0]
