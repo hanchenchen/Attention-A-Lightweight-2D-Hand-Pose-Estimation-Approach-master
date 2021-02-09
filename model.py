@@ -98,4 +98,3 @@ def rmse(x, y):
     return x
 '''policy = tf.keras.mixed_precision.experimental.Policy('float32')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''
-create_model()

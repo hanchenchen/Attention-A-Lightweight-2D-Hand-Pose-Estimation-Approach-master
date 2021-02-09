@@ -21,7 +21,7 @@ def box(im, filename):
         label[i][1] -= top
     # print(label)
     json.dump(label, open('/HDD/ningbo/fileshare/Panoptic/hand_labels/croped/' + path.split('/')[-1][:-4]+'.json', 'w'))
-    return (left, top, right, bottom)
+    return (left, top, left + 224, top + 224)
 
 i = 0
 for path in images_path:
@@ -30,7 +30,7 @@ for path in images_path:
     i += 1
     if not i % 300:
         region.show()
-    print('croped image', path.split('/')[-1])
+    print('croped image',region.size, path.split('/')[-1])
     region.save('/HDD/ningbo/fileshare/Panoptic/hand_labels/croped/' + path.split('/')[-1])
 
 

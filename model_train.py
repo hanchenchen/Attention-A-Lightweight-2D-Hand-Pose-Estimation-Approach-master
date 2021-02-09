@@ -8,7 +8,7 @@ import argparse
 from load_tfrecord import load_training_dataset, load_dataset
 import json
 from model import create_model
-os.environ['CUDA_VISIBLE_DEVICES'] = "0, 1, 2"
+
 
 
 parser = argparse.ArgumentParser(description='use the specified dataset to train the model.')
@@ -18,13 +18,12 @@ args = parser.parse_args()
 choosed = ['FreiHAND_pub_v2', 'Panoptic']
 
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
-
-
+os.environ['CUDA_VISIBLE_DEVICES'] = configs['GPU']
 ########## Dataset ##############
 print('Generating datasets...')
-traning_dataset = load_training_dataset( args.dataset_name, 'training')
+training_dataset = load_training_dataset( args.dataset_name, 'training')
 validation_dataset = load_training_dataset(args.dataset_name, 'validation')
-tf.print(traning_dataset, validation_dataset)
+
 print('Generate the model')
 ########### HYPERPARAMETERS ###########
 BATCH_SIZE = configs['batch_size']
@@ -63,9 +62,10 @@ clbk = [checkpoint, lr_print, clr_triangular]
 '''policy = tf.keras.mixed_precision.experimental.Policy('mixed_bfloat16')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''
 model = create_model()
-# model.load_weights(filepath)  # continue to train
+if configs['continue']:
+    model.load_weights(filepath)  # continue to train
 # model.summary() # architecture
-history = model.fit(traning_dataset, validation_data=validation_dataset, initial_epoch=0, steps_per_epoch=steps_per_epoch, validation_steps=val_steps, epochs=EPOCHS, verbose=1, callbacks=clbk)
+history = model.fit(training_dataset, validation_data=validation_dataset, initial_epoch=0, steps_per_epoch=steps_per_epoch, validation_steps=val_steps, epochs=EPOCHS, verbose=1, callbacks=clbk)
 history.history # print history of training
 # model.summary()
 model.save_weights(filepath)

@@ -17,7 +17,7 @@ def _parse_image_function(example_proto):
   return tf.io.parse_single_example(example_proto, image_feature_description)
 
 def image_label(sample):
-    image = tf.image.decode_jpeg(sample['image'])
+    image = tf.image.decode_jpeg(sample['image'], channels=3)
     image = tf.cast(image, tf.float32)
     image = tf.reshape(image, [224, 224, 3])
     image = tf.image.per_image_standardization(image)
@@ -26,7 +26,7 @@ def image_label(sample):
     return image, label/224.
 
 def name_image_label(sample):
-    image = tf.image.decode_jpeg(sample['image'])
+    image = tf.image.decode_jpeg(sample['image'], channels=3)
     image = tf.cast(image, tf.float32)
     image = tf.reshape(image, [224, 224, 3])
     image = tf.image.per_image_standardization(image)
