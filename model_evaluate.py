@@ -22,7 +22,7 @@ model.load_weights(filepath)
 predictions = {}
 ground_truth = {}
 names, images, labels = load_xyz_dataset(args.dataset_name, 'testing')
-results = model.predict(images)
+results = model.predict(images.take(100)) # the number of samples
 names = [''.join(str(j) for j in i) for i in list(names.as_numpy_iterator())]
 results = (results*224).tolist()
 labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]

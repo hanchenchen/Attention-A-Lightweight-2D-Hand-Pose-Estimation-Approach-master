@@ -1,11 +1,16 @@
+import numpy as np
+from PIL import Image, ImageDraw
+import pickle
+import os
 import tensorflow as tf
 import numpy as np
 import json
 import time
+os.environ['CUDA_VISIBLE_DEVICES'] = "2"
+
 # The following functions can be used to convert a value to a type compatible
 # with tf.train.Example.
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = "2"
+
 def _bytes_feature(value):
   """Returns a bytes_list from a string / byte."""
   if isinstance(value, type(tf.constant(0))):
@@ -29,11 +34,14 @@ def serialize_example(name, image, label):
 def read_label(filename):
     label = json.load(open(filename[:-4]+'.json'))
     return tf.convert_to_tensor(label)[:,:2]
+
 start_time = time.time()
-configs = json.load(open('configs/Panoptic.json'))
+configs = json.load(open('configs/HO3D_v2.json'))
 print('Reading images...')
 images_path = tf.io.gfile.glob(configs['images_path'])
 num = len(images_path)
+print(num)
+# exit()
 dataset = {
     'training' : images_path[:int(num*0.8)],
     'validation' : images_path[int(num*0.8):-int(num*0.1)],
@@ -41,10 +49,9 @@ dataset = {
 }
 
 print('Reading labels...')
-BATCH_SIZE = configs['batch_size']
 
 for name, paths in dataset.items():
-    record_file = 'Panoptic/'+ name +'.tfrecords'
+    record_file = 'HO3D_v2/' + name +'.tfrecords'
     with tf.io.TFRecordWriter(record_file) as writer:
         for path in paths:
             print(path)

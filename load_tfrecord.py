@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 
 AUTO = tf.data.experimental.AUTOTUNE
 
-
 def _parse_image_function(example_proto):
   # Parse the input tf.train.Example proto using the dictionary above.
   image_feature_description = {
@@ -16,23 +15,32 @@ def _parse_image_function(example_proto):
   }
   return tf.io.parse_single_example(example_proto, image_feature_description)
 
-def image_label(sample):
-    image = tf.image.decode_jpeg(sample['image'], channels=3)
+def get_name(sample):
+    return sample['name']
+
+def get_image(sample, image_type = 'png'):
+    if image_type == 'jpg':
+        image = tf.io.decode_jpeg(sample['image'], channels=3)
+    elif image_type == 'png':
+        image = tf.io.decode_png(sample['image'], channels=3)
+    else:
+        print('Unrecognized type:', image_type)
     image = tf.cast(image, tf.float32)
     image = tf.reshape(image, [224, 224, 3])
     image = tf.image.per_image_standardization(image)
+    return image
+
+def get_label(sample):
     label = tf.io.parse_tensor(sample['label'], tf.float32)
     label = tf.reshape(label, [21, 2])
-    return image, label/224.
+    return label/224.
+
+def image_label(sample):
+
+    return get_image(sample), get_label(sample)
 
 def name_image_label(sample):
-    image = tf.image.decode_jpeg(sample['image'], channels=3)
-    image = tf.cast(image, tf.float32)
-    image = tf.reshape(image, [224, 224, 3])
-    image = tf.image.per_image_standardization(image)
-    label = tf.io.parse_tensor(sample['label'], tf.float32)
-    label = tf.reshape(label, [21, 2])
-    return sample['name'], image, label/224.
+    return get_name(sample), get_image(sample), get_label(sample)
 
 def load_training_dataset(dataset_name, name = 'trainig'):
     raw_image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
@@ -56,19 +64,6 @@ def load_dataset(dataset_name, name = 'testing'):
     dataset = dataset.map(map_func=name_image_label, num_parallel_calls=AUTO)
     return dataset
 
-def get_name(sample):
-    return sample['name']
-
-def get_image(sample):
-    image = tf.image.decode_jpeg(sample['image'], channels=3)
-    image = tf.cast(image, tf.float32)
-    image = tf.reshape(image, [224, 224, 3])
-    image = tf.image.per_image_standardization(image)
-    return image
-def get_label(sample):
-    label = tf.io.parse_tensor(sample['label'], tf.float32)
-    label = tf.reshape(label, [21, 2])
-    return label/224.
 
 def add_batch(dataset):
     dataset = dataset.batch(1, drop_remainder=True)
@@ -86,12 +81,12 @@ def load_xyz_dataset(dataset_name, name = 'testing'):
     image_dataset = image_dataset.map(map_func=get_image, num_parallel_calls=AUTO)
     label_dataset = label_dataset.map(map_func=get_label, num_parallel_calls=AUTO)
     return add_batch(name_dataset), add_batch(image_dataset), add_batch(label_dataset) #batch!!!??? 无法理解为什么不加batch就不行
-'''
+
 from PIL import Image, ImageDraw
 
 def hand_pose_estimation(im, coordinates, name):
     # Type: list,   Length:21,      element:[x,y]
-    save_path = 'Panoptic/'+name+'.jpg'
+    save_path = name+'.jpg'
     ori_im = draw_point(coordinates, im)
     print('save output to ', save_path)
     ori_im.save(save_path)
@@ -135,22 +130,23 @@ def draw_point(points, im):
         i = i + 1
     return im
 
-testing = load_dataset('Panoptic','testing')
-i = 50
-for sample in testing:
-    if not i:
-        break
-    i -= 1
-    print('!!!!!')
-    name = sample['name']
-    image = tf.image.decode_jpeg(sample['image']).numpy()
-    print(type(image))
-    label = tf.io.parse_tensor(sample['label'], tf.float32)
-    tf.print(name, label)
-    pil_img = Image.fromarray(image)
-    hand_pose_estimation(pil_img, label, str(i))
-    pil_img.show()
-'''
+def show_samples():
+    testing = load_dataset('HO3D_v2','testing')
+    i = 50
+    for sample in testing:
+        if not i:
+            break
+        i -= 1
+        print('!!!!!')
+        name = sample['name']
+        image = tf.image.decode_png(sample['image']).numpy()
+        print(type(image))
+        label = tf.io.parse_tensor(sample['label'], tf.float32)
+        tf.print(name, label)
+        pil_img = Image.fromarray(image)
+        hand_pose_estimation(pil_img, label, str(i))
+        pil_img.show()
+#  '''
 
-
+# show_samples()
 
