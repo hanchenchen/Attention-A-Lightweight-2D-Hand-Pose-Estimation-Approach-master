@@ -8,7 +8,7 @@
   "step_factor": 8,
   "epochs": 25000,
   "learning_rate": 1e-4,
-  "GPU": "1",
-  "continue": 0
+  "GPU": "0",
+  "continue": 1
 }
 

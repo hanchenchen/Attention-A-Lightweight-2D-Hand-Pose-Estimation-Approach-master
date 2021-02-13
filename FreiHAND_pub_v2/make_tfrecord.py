@@ -49,7 +49,7 @@ BATCH_SIZE = configs['batch_size']
 K_list = tf.convert_to_tensor(json.load(open(configs['K_path'], 'r')))
 xyz_list = tf.convert_to_tensor(json.load(open(configs['xyz_path'], 'r')))
 for name, paths in dataset.items():
-    record_file = 'frei_hand/tfrecord/'+ name +'.tfrecords'
+    record_file = 'FreiHAND_pub_v2/'+ name +'.tfrecords'
     with tf.io.TFRecordWriter(record_file) as writer:
         for path in paths:
             print(path)

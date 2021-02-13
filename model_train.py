@@ -9,13 +9,11 @@ from load_tfrecord import load_training_dataset, load_dataset
 import json
 from model import create_model
 
-
-
 parser = argparse.ArgumentParser(description='use the specified dataset to train the model.')
 parser.add_argument('dataset_name', type=str, default='FreiHAND_pub_v2',
                     help='choose one dataset.')
 args = parser.parse_args()
-choosed = ['FreiHAND_pub_v2', 'Panoptic']
+choosed = ['FreiHAND_pub_v2', 'Panoptic', 'HO3D_v2']
 
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
 os.environ['CUDA_VISIBLE_DEVICES'] = configs['GPU']

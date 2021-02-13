@@ -1,9 +1,8 @@
 {
   "name": "Panoptic",
   "dataset_path":"/HDD/ningbo/fileshare/Paynoptic",
-  "origin_images_path1":"/HDD/ningbo/fileshare/Panoptic/hand_labels/training/*.jpg",
-  "origin_images_path2":"/HDD/ningbo/fileshare/Panoptic/hand143_panopticdb/imgs/*.jpg",
-  "label_path2":"/HDD/ningbo/fileshare/Panoptic/hand143_panopticdb/hands_v143_14817.json",
+  "origin_images_path":"/HDD/ningbo/fileshare/SHP/*/*.jpg",
+  "labels_dir":"/HDD/ningbo/fileshare/SHP/labels/",
   "images_path":"/HDD/ningbo/fileshare/Panoptic/hand_labels/croped/*.jpg",
   "size": 2758,
   "batch_size": 4,
