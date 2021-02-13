@@ -1,12 +1,18 @@
 # Attention-A-Lightweight-2D-Hand-Pose-Estimation-Approach-master
 对论文Attention-A-Lightweight-2D-Hand-Pose-Estimation-Approach-master[code][https://github.com/nsantavas/Attention-A-Lightweight-2D-Hand-Pose-Estimation-Approach] 进行测试和Pytorch复现。
 
-在原项目的基础上添加如下代码：
+#####在原项目的基础上添加如下代码：
+
 model_train.py: 增加了parser和json配置文件，便于在多个数据库上进行训练。
+
 （dataset_path）/crop_images.py: 将不同数据集中的图片剪裁为特定大小（224），并对labels进行修改
+
 （dataset_path）/make_tfrecord.py: 将不同的数据集制作为tfrecord文件
+
 model_ablation.py + arch.json: 实现了 IV. EVALUATION - B. Ablation studies 中的12种 architectures
+
 model_evaluate.py: 使用PCK指标对模型进行测试
+
 pck.py: 计算PCK。reference：NSRMhand-master[code][https://github.com/HowieMa/NSRMhand]
 
 截至 2021/2/13 5pm 的训练结果如下:
