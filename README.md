@@ -1,7 +1,7 @@
 # Attention-A-Lightweight-2D-Hand-Pose-Estimation-Approach-master
 对论文Attention-A-Lightweight-2D-Hand-Pose-Estimation-Approach-master[code][https://github.com/nsantavas/Attention-A-Lightweight-2D-Hand-Pose-Estimation-Approach] 进行测试和Pytorch复现。
 
-#####在原项目的基础上添加如下代码：
+##### 在原项目的基础上添加如下代码：
 
 model_train.py: 增加了parser和json配置文件，便于在多个数据库上进行训练。
 
