@@ -1,0 +1,62 @@
+[{},{
+  "name": "Arch 1",
+  "attention_module": 1,
+  "pooling_method":"Blur",
+  "activation_function":"Mish"
+}, {
+  "name": "Arch 2",
+  "attention_module": 0,
+  "pooling_method":"Blur",
+  "activation_function":"Mish"
+}, {
+  "name": "Arch 3",
+  "attention_module": 0,
+  "pooling_method":"Average",
+  "activation_function":"Mish"
+}, {
+  "name": "Arch 4",
+  "attention_module": 1,
+  "pooling_method":"Average",
+  "activation_function":"Mish"
+},{
+  "name": "Arch 5",
+  "attention_module": 1,
+  "pooling_method":"Blur",
+  "activation_function":"relu"
+}, {
+  "name": "Arch 6",
+  "attention_module": 0,
+  "pooling_method":"Average",
+  "activation_function":"relu"
+}, {
+  "name": "Arch 7",
+  "attention_module": 1,
+  "pooling_method":"Average",
+  "activation_function":"relu"
+}, {
+  "name": "Arch 8",
+  "attention_module": 0,
+  "pooling_method":"Blur",
+  "activation_function":"relu"
+},{
+  "name": "Arch 9",
+  "attention_module": 0,
+  "pooling_method":"Max",
+  "activation_function":"Mish"
+}, {
+  "name": "Arch 10",
+  "attention_module": 1,
+  "pooling_method":"Max",
+  "activation_function":"Mish"
+}, {
+  "name": "Arch 11",
+  "attention_module": 0,
+  "pooling_method":"Max",
+  "activation_function":"relu"
+}, {
+  "name": "Arch 12",
+  "attention_module": 1,
+  "pooling_method":"Max",
+  "activation_function":"relu"
+}]
+

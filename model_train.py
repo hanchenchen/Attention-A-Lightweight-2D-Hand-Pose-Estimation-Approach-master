@@ -12,6 +12,8 @@ from model import create_model
 parser = argparse.ArgumentParser(description='use the specified dataset to train the model.')
 parser.add_argument('dataset_name', type=str, default='FreiHAND_pub_v2',
                     help='choose one dataset.')
+parser.add_argument('--arch', type=int, default='1',
+                    help='ablation studies. ')
 args = parser.parse_args()
 choosed = ['FreiHAND_pub_v2', 'Panoptic', 'HO3D_v2']
 
@@ -58,7 +60,7 @@ clbk = [checkpoint, lr_print, clr_triangular]
 ###############Fit#############
 '''policy = tf.keras.mixed_precision.experimental.Policy('mixed_bfloat16')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''
-model = create_model()
+model = create_model()#args.arch)
 if configs['continue']:
     model.load_weights(filepath)  # continue to train
 # model.summary() # architecture
