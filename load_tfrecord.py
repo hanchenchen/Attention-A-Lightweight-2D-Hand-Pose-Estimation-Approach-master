@@ -131,7 +131,7 @@ def draw_point(points, im):
     return im
 
 def show_samples():
-    testing = load_dataset('HO3D_v2','testing')
+    testing = load_dataset('Panoptic','testing')
     i = 50
     for sample in testing:
         if not i:
@@ -147,6 +147,8 @@ def show_samples():
         hand_pose_estimation(pil_img, label, str(i))
         pil_img.show()
 #  '''
-
-# show_samples()
-
+'''
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = "2"
+show_samples() # 注释掉load_dataset中的第二个map
+'''

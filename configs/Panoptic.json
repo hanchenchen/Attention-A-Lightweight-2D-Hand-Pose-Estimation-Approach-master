@@ -2,15 +2,16 @@
   "name": "Panoptic",
   "dataset_path":"/HDD/ningbo/fileshare/Paynoptic",
   "origin_images_path1":"/HDD/ningbo/fileshare/Panoptic/hand_labels/training/*.jpg",
-  "origin_images_path2":"/HDD/ningbo/fileshare/Panoptic/hand143_panopticdb/imgs/*.jpg",
-  "label_path2":"/HDD/ningbo/fileshare/Panoptic/hand143_panopticdb/hands_v143_14817.json",
-  "images_path":"/HDD/ningbo/fileshare/Panoptic/hand_labels/croped/*.jpg",
-  "size": 2758,
+  "origin_images_path2":"/HDD/ningbo/fileshare/Panoptic/hand_labels_synth/synth*/*.jpg",
+  "origin_images_path3":"/HDD/ningbo/fileshare/Panoptic/hand143_panopticdb/imgs/*.jpg",
+  "label_path3":"/HDD/ningbo/fileshare/Panoptic/hand143_panopticdb/hands_v143_14817.json",
+  "images_path":"/HDD/ningbo/fileshare/Panoptic/cropped/*.jpg",
+  "size": 31836,
   "batch_size": 4,
   "step_factor": 8,
   "epochs": 25000,
   "learning_rate": 1e-4,
-  "GPU": "0",
+  "GPU": "1",
   "continue": 1
 }
 
