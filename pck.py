@@ -2,7 +2,8 @@ import os
 import numpy as np
 import logging
 import matplotlib.pyplot as plt
-
+import json
+from sklearn.metrics import auc
 def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = [0.1, 0.15, 0.2, 0.25, 0.3]):
     """
     Get PCK with different sigma threshold
@@ -52,3 +53,42 @@ def PCK(predict, target, bb_size=256, sigma=0.1):
 predictions = json.load(open('Panoptic/predictions.json'))
 groud_truth = json.load(open('Panoptic/ground_truth.json'))
 get_pck_with_sigma(predictions, groud_truth)'''
+
+def get2DPCK(predictions, gt, figName=None, showFig=False):
+    # calc. PCK
+    interval = np.arange(0, 100 + 1, 1)
+    errArr = np.zeros((len(interval),), dtype=np.float32)
+    projErrs = np.nanmean(np.linalg.norm(gt - predictions, axis=2), axis=1)
+    cntr = 0
+    for i in interval:
+        errArr[cntr] = float(np.sum(projErrs < i)) / float(gt.shape[0]) * 100.
+        cntr += 1
+
+    AUC = auc(interval, errArr)
+    # plot it
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(interval,
+            errArr,
+            # c=colors[0],
+            linestyle='-', linewidth=1)
+    plt.xlabel('Distance threshold / px', fontsize=12)
+    plt.ylabel('Fraction of frames within distance / %', fontsize=12)
+    plt.xlim([0.0, 100])
+    plt.ylim([0.0, 100.0])
+    ax.grid(True)
+
+    # save if required
+    if figName is not None:
+        fig.savefig(figName,
+                    bbox_extra_artists=None,
+                    bbox_inches='tight')
+        with open(figName.split('.')[0] + '.json', 'wb') as f:
+            json.dump({'x': interval, 'y': errArr, 'gt': gt, 'est': predictions}, f)
+
+    # show if required
+    if showFig:
+        plt.show(block=False)
+    # plt.close(fig)
+
+    return interval, errArr, AUC
