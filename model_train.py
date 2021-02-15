@@ -44,7 +44,7 @@ clr_triangular = CyclicLR(base_lr=configs['learning_rate'], max_lr=0.1, step_siz
 ######## Tensorboard ############
 # Your log directory
 import datetime
-logdir = args.dataset_name + "/logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+logdir = args.dataset_name + "/logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir, write_graph=True)
 
 ######## Model Save #############
@@ -54,14 +54,15 @@ checkpoint = keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', save_
                                              save_weights_only=True)
 
 ##########Callback###############
-# clbk = [tensorboard_callback, checkpoint, lr_print, clr_triangular]
-clbk = [checkpoint, lr_print, clr_triangular]
+clbk = [tensorboard_callback, checkpoint, lr_print, clr_triangular]
+# clbk = [checkpoint, lr_print, clr_triangular]
 
 ###############Fit#############
 '''policy = tf.keras.mixed_precision.experimental.Policy('mixed_bfloat16')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''
 model = create_model()#args.arch)
-if configs['continue']:
+if os.path.exists(filepath):
+    print('continue to train...')
     model.load_weights(filepath)  # continue to train
 # model.summary() # architecture
 history = model.fit(training_dataset, validation_data=validation_dataset, initial_epoch=0, steps_per_epoch=steps_per_epoch, validation_steps=val_steps, epochs=EPOCHS, verbose=1, callbacks=clbk)

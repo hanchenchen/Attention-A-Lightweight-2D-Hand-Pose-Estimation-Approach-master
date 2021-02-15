@@ -4,11 +4,11 @@
   "images_path":"/HDD/ningbo/fileshare/HO3D_v2/cropped/*.png",
   "origin_images_path":"/HDD/ningbo/fileshare/HO3D_v2/train/*/rgb/*.png",
   "size": 66034,
-  "batch_size": 8,
+  "batch_size": 4,
   "step_factor": 8,
   "epochs": 25000,
   "learning_rate": 1e-4,
-  "GPU": "0",
+  "GPU": "2",
   "continue": 1
 }
 
