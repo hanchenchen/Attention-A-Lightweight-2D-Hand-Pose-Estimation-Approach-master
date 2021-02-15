@@ -61,7 +61,7 @@ def load_dataset(dataset_name, name = 'testing'):
     raw_image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
     # Create a dictionary describing the features.
     dataset = raw_image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
-    # dataset = dataset.map(map_func=name_image_label, num_parallel_calls=AUTO)
+    dataset = dataset.map(map_func=name_image_label, num_parallel_calls=AUTO)
     return dataset
 
 
@@ -147,7 +147,8 @@ def show_samples():
         hand_pose_estimation(pil_img, label, str(i))
         pil_img.show()
 #  '''
-# '''
+#
+'''
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 show_samples() # 注释掉load_dataset中的第二个map
