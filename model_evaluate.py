@@ -6,10 +6,10 @@ from load_tfrecord import load_dataset, load_training_dataset, load_xyz_dataset
 import tensorflow as tf
 from model import create_model
 import time
-from pck import get_pck_with_sigma
+from pck import get_pck_with_sigma,get_pck_with_pixel
 import numpy as np
 start = time.time()
-os.environ['CUDA_VISIBLE_DEVICES'] = "1"
+os.environ['CUDA_VISIBLE_DEVICES'] = "3"
 parser = argparse.ArgumentParser(description='use the specified dataset to train the model.')
 parser.add_argument('dataset_name', type=str, default='FreiHAND_pub_v2',
                     help='choose one dataset.')
@@ -22,7 +22,7 @@ model.load_weights(filepath)
 predictions = {}
 ground_truth = {}
 names, images, labels = load_xyz_dataset(args.dataset_name, 'testing')
-results = model.predict(images.take(100)) # the number of samples
+results = model.predict(images.take(10)) # the number of samples
 names = [''.join(str(j) for j in i) for i in list(names.as_numpy_iterator())]
 results = (results*224).tolist()
 labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]
@@ -31,10 +31,12 @@ print('results:', len(results))
 for i in range(len(results)):
     predictions[names[i]] = {'prd_label': results[i], 'resol': 224}
     ground_truth[names[i]] = labels[i]
+
 json.dump(predictions, open(args.dataset_name + '/predictions.json', 'w'))
 json.dump(ground_truth, open(args.dataset_name + '/ground_truth.json', 'w'))
-pck_results = get_pck_with_sigma(predictions, ground_truth, [i*0.05 for i in range(19)])
+pck_results = get_pck_with_pixel(predictions, ground_truth)
 print(pck_results)
+
 json.dump(pck_results, open(args.dataset_name + '/pck_results.json', 'w'))
 '''print(results)
 for i in range(names):
