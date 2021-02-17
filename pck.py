@@ -4,7 +4,7 @@ import logging
 import matplotlib.pyplot as plt
 import json
 from sklearn.metrics import auc
-def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = [0.1, 0.15, 0.2, 0.25, 0.3]):
+def get_pck_with_sigma(predict_labels_dict, gt_labels, save_path, sigma_list = [0.1, 0.15, 0.2, 0.25, 0.3], ):
     """
     Get PCK with different sigma threshold
     :param predict_labels_dict:  dict  element:  'img_name':{'prd_label':[list, coordinates of 21 keypoints],
@@ -14,11 +14,12 @@ def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = [0.1, 0.15, 
     :return:
     """
     pck_dict = {}
+    interval = np.arange(0, 1, 0.05)
     for im in predict_labels_dict:
         gt_label = gt_labels[im]        # list    len:21      element:[x, y]
         pred_label = predict_labels_dict[im]['prd_label']  # list    len:21      element:[x, y]
         im_size = predict_labels_dict[im]['resol']
-        for sigma in sigma_list:
+        for sigma in interval:
             if sigma not in pck_dict:
                 pck_dict[sigma] = []
             pck_dict[sigma].append(PCK(pred_label, gt_label, im_size/2.2, sigma))
@@ -26,12 +27,37 @@ def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = [0.1, 0.15, 
             # since our cropped image is 2.2 times of hand tightest bounding box,
             # we simply use im_size / 2,2 as the tightest bounding box
 
-    pck_res = {}
-    for sigma in sigma_list:
-        pck_res[sigma] = sum(pck_dict[sigma]) / len(pck_dict[sigma])
-    return pck_res
 
-def get_pck_with_pixel(predict_labels_dict, gt_labels):
+    pck_res = np.zeros((len(interval),), dtype=np.float32)
+    index = 0
+    for sigma in interval:
+        pck_res[index] = sum(pck_dict[sigma]) / len(pck_dict[sigma])
+        index += 1
+    AUC = auc(interval, pck_res)
+    # plot it
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(interval,
+            pck_res,
+            # c=colors[0],
+            linestyle='-', linewidth=1)
+    plt.xlabel('Normalized distance (px) / ', fontsize=12)
+    plt.ylabel('Fraction of frames within distance / %', fontsize=12)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.0])
+    ax.grid(True)
+
+    # save if required
+    fig.savefig(save_path,
+                bbox_extra_artists=None,
+                bbox_inches='tight')
+
+    # show if required
+    plt.show(block=False)
+    # plt.close(fig)
+    return {'pck_res': pck_res.tolist(), 'AUC': AUC}
+
+def get_pck_with_pixel(predict_labels_dict, gt_labels, save_path):
     """
     Get PCK with different sigma threshold
     :param predict_labels_dict:  dict  element:  'img_name':{'prd_label':[list, coordinates of 21 keypoints],
@@ -41,44 +67,44 @@ def get_pck_with_pixel(predict_labels_dict, gt_labels):
     :return:
     """
     pck_dict = {}
+    interval = np.arange(0, 100 + 1, 1)
     for im in predict_labels_dict:
         gt_label = gt_labels[im]        # list    len:21      element:[x, y]
         pred_label = predict_labels_dict[im]['prd_label']  # list    len:21      element:[x, y]
         im_size = predict_labels_dict[im]['resol']
-        for pixel in range(0,101,1):
+        for pixel in interval:
             if pixel not in pck_dict:
                 pck_dict[pixel] = []
             pck_dict[pixel].append(PCK_pixel(pred_label, gt_label, pixel))
             # Attention!
             # since our cropped image is 2.2 times of hand tightest bounding box,
             # we simply use im_size / 2,2 as the tightest bounding box
-
-    pck_res = {}
-    for pixel in range(0,101,1):
+    pck_res = np.zeros((len(interval),), dtype=np.float32)
+    for pixel in interval:
         pck_res[pixel] = sum(pck_dict[pixel]) / len(pck_dict[pixel])
-    AUC = auc([pixel for pixel in range(0,101,1)], pck_res)
+    AUC = auc(interval, pck_res)/float(len(interval))
     # plot it
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(pixel,
+    ax.plot(interval,
             pck_res,
             # c=colors[0],
             linestyle='-', linewidth=1)
     plt.xlabel('Distance threshold / px', fontsize=12)
     plt.ylabel('Fraction of frames within distance / %', fontsize=12)
-    plt.xlim([0.0, 100])
-    plt.ylim([0.0, 100.0])
+    plt.xlim([0.0, interval[-1]])
+    plt.ylim([0.0, 1.0])
     ax.grid(True)
 
     # save if required
-    fig.savefig('results.png',
+    fig.savefig(save_path,
                 bbox_extra_artists=None,
                 bbox_inches='tight')
 
     # show if required
     plt.show(block=False)
     # plt.close(fig)
-    return {'pck_res': pck_res, 'AUC': AUC}
+    return {'pck_res': pck_res.tolist(), 'AUC': AUC}
 
 def PCK(predict, target, bb_size=256, sigma=0.1):
     """
@@ -119,42 +145,3 @@ predictions = json.load(open('Panoptic/predictions.json'))
 groud_truth = json.load(open('Panoptic/ground_truth.json'))
 get_pck_with_sigma(predictions, groud_truth)'''
 
-def get2DPCK(predictions, gt, figName=None, showFig=False):
-    # calc. PCK
-    predictions = np.array(predictions)
-    gt = np.array(gt)
-    print(predictions, gt)
-    interval = np.arange(0, 100 + 1, 1)
-    errArr = np.zeros((len(interval),), dtype=np.float32)
-    projErrs = np.nanmean(np.linalg.norm(gt - predictions, axis=2), axis=1)
-    cntr = 0
-    for i in interval:
-        errArr[cntr] = float(np.sum(projErrs < i)) / float(gt.shape[0]) * 100.
-        cntr += 1
-
-    AUC = auc(interval, errArr)
-    # plot it
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(interval,
-            errArr,
-            # c=colors[0],
-            linestyle='-', linewidth=1)
-    plt.xlabel('Distance threshold / px', fontsize=12)
-    plt.ylabel('Fraction of frames within distance / %', fontsize=12)
-    plt.xlim([0.0, 100])
-    plt.ylim([0.0, 100.0])
-    ax.grid(True)
-
-    # save if required
-    if figName is not None:
-        fig.savefig(figName,
-                    bbox_extra_artists=None,
-                    bbox_inches='tight')
-
-    # show if required
-    if showFig:
-        plt.show(block=False)
-    # plt.close(fig)
-
-    return interval, errArr, AUC

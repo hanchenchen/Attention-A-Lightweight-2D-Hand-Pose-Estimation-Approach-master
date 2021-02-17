@@ -22,7 +22,7 @@ model.load_weights(filepath)
 predictions = {}
 ground_truth = {}
 names, images, labels = load_xyz_dataset(args.dataset_name, 'testing')
-results = model.predict(images.take(10)) # the number of samples
+results = model.predict(images.take(100)) # the number of samples
 names = [''.join(str(j) for j in i) for i in list(names.as_numpy_iterator())]
 results = (results*224).tolist()
 labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]
@@ -34,10 +34,12 @@ for i in range(len(results)):
 
 json.dump(predictions, open(args.dataset_name + '/predictions.json', 'w'))
 json.dump(ground_truth, open(args.dataset_name + '/ground_truth.json', 'w'))
-pck_results = get_pck_with_pixel(predictions, ground_truth)
-print(pck_results)
-
-json.dump(pck_results, open(args.dataset_name + '/pck_results.json', 'w'))
+pck_results_pixel = get_pck_with_pixel(predictions, ground_truth, args.dataset_name + '/results_pixel.png')
+print('pck_results_pixel["AUC"]:', pck_results_pixel['AUC'])
+json.dump(pck_results_pixel, open(args.dataset_name + '/pck_results_pixel.json', 'w'))
+pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, args.dataset_name + '/results_sigma.png')
+print('pck_results_sigma["AUC"]:',pck_results_sigma["AUC"])
+json.dump(pck_results_sigma, open(args.dataset_name + '/pck_results_sigma.json', 'w'))
 '''print(results)
 for i in range(names):
     print(tf.convert_to_tensor(images))
