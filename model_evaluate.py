@@ -8,6 +8,7 @@ from model import create_model
 import time
 from pck import get_pck_with_sigma,get_pck_with_pixel
 import numpy as np
+from utils import *
 start = time.time()
 os.environ['CUDA_VISIBLE_DEVICES'] = "3"
 parser = argparse.ArgumentParser(description='use the specified dataset to train the model.')
@@ -22,8 +23,10 @@ model.load_weights(filepath)
 predictions = {}
 ground_truth = {}
 names, images, labels = load_xyz_dataset(args.dataset_name, 'testing')
-results = model.predict(images.take(100)) # the number of samples
-names = [''.join(str(j) for j in i) for i in list(names.as_numpy_iterator())]
+
+images_dir = '/'.join(configs['images_path'].split('/')[:-1])
+results = model.predict(images.take(2)) # the number of samples
+names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
 results = (results*224).tolist()
 labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]
 print('results:', len(results))
@@ -31,15 +34,17 @@ print('results:', len(results))
 for i in range(len(results)):
     predictions[names[i]] = {'prd_label': results[i], 'resol': 224}
     ground_truth[names[i]] = labels[i]
+    show_hand(images_dir + '/' + names[i], labels[i], args.dataset_name + '/qualitative_results/gt_' + names[i])
+    show_hand(args.dataset_name + 'qualitative_results/gt_' + names[i], results[i], args.dataset_name + 'qualitative_results/pred_' + names[i])
 
-json.dump(predictions, open(args.dataset_name + '/predictions.json', 'w'))
-json.dump(ground_truth, open(args.dataset_name + '/ground_truth.json', 'w'))
-pck_results_pixel = get_pck_with_pixel(predictions, ground_truth, args.dataset_name + '/results_pixel.png')
+json.dump(predictions, open(args.dataset_name + '/quantitative/predictions.json', 'w'))
+json.dump(ground_truth, open(args.dataset_name + '/quantitative/ground_truth.json', 'w'))
+pck_results_pixel = get_pck_with_pixel(predictions, ground_truth, args.dataset_name + '/quantitative/results_pixel.png')
 print('pck_results_pixel["AUC"]:', pck_results_pixel['AUC'])
-json.dump(pck_results_pixel, open(args.dataset_name + '/pck_results_pixel.json', 'w'))
-pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, args.dataset_name + '/results_sigma.png')
+json.dump(pck_results_pixel, open(args.dataset_name + '/quantitative/pck_results_pixel.json', 'w'))
+pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, args.dataset_name + '/quantitative/results_sigma.png')
 print('pck_results_sigma["AUC"]:',pck_results_sigma["AUC"])
-json.dump(pck_results_sigma, open(args.dataset_name + '/pck_results_sigma.json', 'w'))
+json.dump(pck_results_sigma, open(args.dataset_name + '/quantitative/pck_results_sigma.json', 'w'))
 '''print(results)
 for i in range(names):
     print(tf.convert_to_tensor(images))
