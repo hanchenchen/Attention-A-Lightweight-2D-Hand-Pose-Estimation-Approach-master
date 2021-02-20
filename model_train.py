@@ -29,8 +29,8 @@ print('Generate the model')
 BATCH_SIZE = configs['batch_size']
 step_factor = configs['step_factor']
 EPOCHS = configs['epochs']
-steps_per_epoch = min(int(configs['size']*0.8 // BATCH_SIZE),2000)
-val_steps = min(int(configs['size']*0.1 // BATCH_SIZE),200)
+steps_per_epoch = int(configs['size']*0.8 // BATCH_SIZE)
+val_steps = int(configs['size']*0.1 // BATCH_SIZE)
 step_size = steps_per_epoch * step_factor
 # Your model's name
 print('The model will be saved in directory:', args.dataset_name)

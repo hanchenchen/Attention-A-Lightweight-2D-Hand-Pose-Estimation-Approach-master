@@ -4,7 +4,7 @@
   "origin_images_path":"/HDD/ningbo/fileshare/SHP/B*/BB*.png",
   "labels_dir":"/HDD/ningbo/fileshare/SHP/labels/*",
   "images_path":"/HDD/ningbo/fileshare/SHP/cropped/*.png",
-  "size": 16726,
+  "size": 30206,
   "batch_size": 4,
   "step_factor": 8,
   "epochs": 25000,

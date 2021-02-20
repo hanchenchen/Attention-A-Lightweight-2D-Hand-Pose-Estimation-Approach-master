@@ -72,7 +72,7 @@ def hand_pose_estimation(im, coordinates, name):
     save_path = name+'.jpg'
     ori_im = draw_point(coordinates, im)
     print('save output to ', save_path)
-    ori_im.save(save_path)
+    # ori_im.save(save_path)
     return coordinates
 
 
@@ -148,8 +148,9 @@ for path in images_path:
     region = im.crop(box(im, path, im.size))
     i += 1
     if not i % 500:
-        region.show()
-        show_samples(path)
+        pass
+        # region.show()
+        # show_samples(path)
     region = region.resize((224, 224))
     print(str(i)+'/'+str(len(images_path)) + 'croped image',region.size,  path.split('/')[-2] + '_' + path.split('/')[-1])
     region.save('/HDD/ningbo/fileshare/SHP/cropped/' + path.split('/')[-2] + '_' + path.split('/')[-1])
