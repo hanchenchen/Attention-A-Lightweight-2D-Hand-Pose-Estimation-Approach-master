@@ -34,7 +34,7 @@ print('Reading images...')
 images_path = tf.io.gfile.glob(configs['images_path'])
 num = len(images_path)
 import random
-os.environ['CUDA_VISIBLE_DEVICES'] = configs['GPU']
+os.environ['CUDA_VISIBLE_DEVICES'] = "3"
 random.shuffle(images_path)
 dataset = {
     'training' : images_path[:int(num*0.8)],
