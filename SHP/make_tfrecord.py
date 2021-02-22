@@ -5,7 +5,6 @@ import time
 # The following functions can be used to convert a value to a type compatible
 # with tf.train.Example.
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = "2"
 def _bytes_feature(value):
   """Returns a bytes_list from a string / byte."""
   if isinstance(value, type(tf.constant(0))):
@@ -34,6 +33,9 @@ configs = json.load(open('configs/SHP.json'))
 print('Reading images...')
 images_path = tf.io.gfile.glob(configs['images_path'])
 num = len(images_path)
+import random
+os.environ['CUDA_VISIBLE_DEVICES'] = configs['GPU']
+random.shuffle(images_path)
 dataset = {
     'training' : images_path[:int(num*0.8)],
     'validation' : images_path[int(num*0.8):-int(num*0.1)],

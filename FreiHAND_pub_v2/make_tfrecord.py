@@ -37,6 +37,10 @@ configs = json.load(open('configs/FreiHAND_pub_v2.json'))
 print('Reading images...')
 images_path = tf.io.gfile.glob(configs['images_path'])
 num = len(images_path)
+import random
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = configs['GPU']
+random.shuffle(images_path)
 dataset = {
     'training' : images_path[:int(num*0.8)],
     'validation' : images_path[int(num*0.8):-int(num*0.1)],

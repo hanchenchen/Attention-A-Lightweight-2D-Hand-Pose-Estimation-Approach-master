@@ -6,8 +6,8 @@ import tensorflow as tf
 import numpy as np
 import json
 import time
-os.environ['CUDA_VISIBLE_DEVICES'] = "2"
 
+import random
 # The following functions can be used to convert a value to a type compatible
 # with tf.train.Example.
 
@@ -37,11 +37,11 @@ def read_label(filename):
 
 start_time = time.time()
 configs = json.load(open('configs/HO3D_v2.json'))
+os.environ['CUDA_VISIBLE_DEVICES'] = configs['GPU']
 print('Reading images...')
 images_path = tf.io.gfile.glob(configs['images_path'])
 num = len(images_path)
-print(num)
-# exit()
+random.shuffle(images_path)
 dataset = {
     'training' : images_path[:int(num*0.8)],
     'validation' : images_path[int(num*0.8):-int(num*0.1)],

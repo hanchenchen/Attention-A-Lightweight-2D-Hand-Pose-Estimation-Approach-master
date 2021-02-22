@@ -5,7 +5,7 @@ import time
 import matplotlib.pyplot as plt
 
 AUTO = tf.data.experimental.AUTOTUNE
-
+image_type = 'png'
 def _parse_image_function(example_proto):
   # Parse the input tf.train.Example proto using the dictionary above.
   image_feature_description = {
@@ -18,7 +18,7 @@ def _parse_image_function(example_proto):
 def get_name(sample):
     return sample['name']
 
-def get_image(sample, image_type = 'png'):
+def get_image(sample):
     if image_type == 'jpg':
         image = tf.io.decode_jpeg(sample['image'], channels=3)
     elif image_type == 'png':
@@ -50,6 +50,8 @@ def load_training_dataset(dataset_name, name = 'trainig'):
     # dataset = dataset.cache()
     configs = json.load(open('configs/' + dataset_name + '.json'))
     BATCH_SIZE = configs['batch_size']
+    global image_type
+    image_type = configs['images_path'].split('.')[-1]
     dataset = dataset.shuffle(BATCH_SIZE*10)
     dataset = dataset.repeat()
     dataset = dataset.batch(BATCH_SIZE, drop_remainder=True)
@@ -58,6 +60,9 @@ def load_training_dataset(dataset_name, name = 'trainig'):
 
 # finite and ordered dataset
 def load_dataset(dataset_name, name = 'testing'):
+    configs = json.load(open('configs/' + dataset_name + '.json'))
+    global image_type
+    image_type = configs['images_path'].split('.')[-1]
     raw_image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
     # Create a dictionary describing the features.
     dataset = raw_image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
@@ -70,6 +75,9 @@ def add_batch(dataset):
     dataset = dataset.prefetch(AUTO)
     return dataset
 def load_xyz_dataset(dataset_name, name = 'testing'):
+    configs = json.load(open('configs/' + dataset_name + '.json'))
+    global image_type
+    image_type = configs['images_path'].split('.')[-1]
     name_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
     image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
     label_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
@@ -146,6 +154,30 @@ def show_samples():
         pil_img = Image.fromarray(image)
         hand_pose_estimation(pil_img, label, str(i))
         pil_img.show()
+
+def raw_images(dataset_name, name='testing'):
+    configs = json.load(open('configs/' + dataset_name + '.json'))
+    global image_type
+    image_type = configs['images_path'].split('.')[-1]
+    samples = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
+    samples = samples.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
+    pil_images = []
+    for sample in samples:
+        if image_type == 'jpg':
+            image = tf.io.decode_jpeg(sample['image'], channels=3)
+        elif image_type == 'png':
+            image = tf.io.decode_png(sample['image'], channels=3)
+        else:
+            print('Unrecognized type:', image_type)
+        image = image.numpy()
+        pil_images.append(Image.fromarray(image))
+    return pil_images
+
+
+
+
+
+
 #  '''
 #
 '''

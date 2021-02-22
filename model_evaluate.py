@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 from model import create_model
-from load_tfrecord import load_dataset, load_training_dataset, load_xyz_dataset
+from load_tfrecord import raw_images, load_dataset, load_training_dataset, load_xyz_dataset
 import tensorflow as tf
 from model import create_model
 import time
@@ -25,57 +25,33 @@ ground_truth = {}
 names, images, labels = load_xyz_dataset(args.dataset_name, 'testing')
 
 images_dir = '/'.join(configs['images_path'].split('/')[:-1])
-results = model.predict(images.take(2)) # the number of samples
+results = model.predict(images.take(10)) # the number of samples
 names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
 results = (results*224).tolist()
+
 labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]
 print('results:', len(results))
 # print(names[0],results[0],labels[0])
+
 for i in range(len(results)):
     predictions[names[i]] = {'prd_label': results[i], 'resol': 224}
     ground_truth[names[i]] = labels[i]
-    show_hand(images_dir + '/' + names[i], labels[i], args.dataset_name + '/qualitative_results/gt_' + names[i])
-    show_hand(args.dataset_name + 'qualitative_results/gt_' + names[i], results[i], args.dataset_name + 'qualitative_results/pred_' + names[i])
 
-json.dump(predictions, open(args.dataset_name + '/quantitative/predictions.json', 'w'))
-json.dump(ground_truth, open(args.dataset_name + '/quantitative/ground_truth.json', 'w'))
-pck_results_pixel = get_pck_with_pixel(predictions, ground_truth, args.dataset_name + '/quantitative/results_pixel.png')
+json.dump(predictions, open(args.dataset_name + '/quantitative_results/predictions.json', 'w'))
+json.dump(ground_truth, open(args.dataset_name + '/quantitative_results/ground_truth.json', 'w'))
+pck_results_pixel = get_pck_with_pixel(predictions, ground_truth, args.dataset_name + '/quantitative_results/results_pixel.png')
 print('pck_results_pixel["AUC"]:', pck_results_pixel['AUC'])
-json.dump(pck_results_pixel, open(args.dataset_name + '/quantitative/pck_results_pixel.json', 'w'))
-pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, args.dataset_name + '/quantitative/results_sigma.png')
+json.dump(pck_results_pixel, open(args.dataset_name + '/quantitative_results/pck_results_pixel.json', 'w'))
+pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, args.dataset_name + '/quantitative_results/results_sigma.png')
 print('pck_results_sigma["AUC"]:',pck_results_sigma["AUC"])
-json.dump(pck_results_sigma, open(args.dataset_name + '/quantitative/pck_results_sigma.json', 'w'))
-'''print(results)
-for i in range(names):
-    print(tf.convert_to_tensor(images))
-    predictions[names[i].tostring()] = {'prd_label': list(model.predict(np.array(images))), 'resol':224}
-    ground_truth[names[i].tostring()] = list(labels[i])
-    print(predictions[names[i].tostring()], ground_truth[names[i].tostring()])
-    break'''
+json.dump(pck_results_sigma, open(args.dataset_name + '/quantitative_results/pck_results_sigma.json', 'w'))
 end = time.time()
 print('predicted done in',end - start, 'sec.')
-'''
-# Evaluate the model on the test data using `evaluate`
-print("Evaluate on test data...")
-evaluate_fpath = open(os.path.join(args.dataset_name, 'evaluate.json'), 'w')
-results = json.load(evaluate_fpath)
-results[configs['learning_rate']] = model.evaluate(testing_images, ground_truth)
-print("test loss, test acc:", results)
-json.dump(results, evaluate_fpath)
-evaluate_fpath.close()
-
-
-# Generate predictions (probabilities -- the output of the last layer)
-# on new data using `predict`
-print("Generate predictions: ", testing_images.shape)
-predictions = model.predict(testing_images)#, steps = 100)
-# print("predictions shape:", predictions.shape)
-# tf.print(predictions)
-
-# Save the predictions to (args.dataset_name)/predictions.json
-predictions_fpath = open(os.path.join(args.dataset_name, 'predictions.json'), 'w')
-pred_list = [i.tolist() for i in predictions]
-pred_list = {testing[i]:pred_list[i] for i in range(len(testing))}
-json.dump(pred_list, predictions_fpath)
-predictions_fpath.close()
-'''
+test_image = raw_images(args.dataset_name)
+for i in range(len(results)):
+    name = names[i]
+    pil_img = test_image[i]
+    print('test:', name)
+    show_hand(pil_img.copy(), ground_truth[name], args.dataset_name + '/qualitative_results/gt_' + name)
+    show_hand(pil_img, predictions[name]['prd_label'],
+              args.dataset_name + '/qualitative_results/pred_' + name)

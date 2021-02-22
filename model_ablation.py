@@ -75,11 +75,10 @@ def conv_block(x, growth_rate, kernel_size = 3):
 
 def dense(x, kernel, num, nh=4, filters=10, aug=True):
     x_list = [x]
+    if not arch['attention_module']:
+        aug = False
     for i in range(num):
-        if not arch['attention_module']:
-            x = conv_block(x, filters ,kernel)
-        else:
-            x = ARB(x, filters, 0.1, 0.1, nh, kernel, aug)
+        x = ARB(x, filters, 0.1, 0.1, nh, kernel, aug)
         x_list.append(x)
         x = tf.concat(x_list, axis=-1)
     return x

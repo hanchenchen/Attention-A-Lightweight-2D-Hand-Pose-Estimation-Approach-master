@@ -37,10 +37,12 @@ def draw_point(points, im):
         i = i + 1
     return im
 
-def show_hand(image_path, label, save_path = None):
-    im = Image.open(image_path)
+def show_hand(im, label, save_path = None):
+    if type(im) == str:
+        im = Image.open(im)
     im = draw_point(label, im)
     if save_path:
         print('save output to ', save_path)
         im.save(save_path)
     im.show()
+    return im

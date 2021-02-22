@@ -1,7 +1,7 @@
 {
   "name": "FreiHAND_pub_v2",
   "dataset_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2",
-  "images_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training/rgb/*",
+  "images_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training/rgb/*.jpg",
   "K_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training_K.json",
   "xyz_path":"/HDD/ningbo/fileshare/FreiHAND_pub_v2/training_xyz.json",
   "size": 130240,
