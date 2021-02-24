@@ -107,8 +107,8 @@ def gen_label_heatmap(label):
     label = torch.Tensor(label)
     heatmap_size = 224//3
     grid = tf.zeros((heatmap_size, heatmap_size, 2))  # size:(46,46,2)
-    grid[..., 0] = torch.Tensor(range(self.label_size)).unsqueeze(0)
-    grid[..., 1] = torch.Tensor(range(self.label_size)).unsqueeze(1)
+    grid[..., 0] = torch.Tensor(range(heatmap_size)).unsqueeze(0)
+    grid[..., 1] = torch.Tensor(range(heatmap_size)).unsqueeze(1)
     grid = grid.unsqueeze(0)
     labels = label.unsqueeze(-2).unsqueeze(-2)
     exponent = torch.sum((grid - labels) ** 2, dim=-1)  # size:(21,46,46)
