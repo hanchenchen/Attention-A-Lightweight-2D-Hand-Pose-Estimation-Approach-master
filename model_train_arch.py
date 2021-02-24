@@ -5,7 +5,7 @@ from clr import *
 from attention_blur import *
 import os
 import argparse
-from load_tfrecord import load_training_dataset, load_dataset
+from load_tfrecord import load_training_dataset, load_dataset, load_cpm_dataset
 import json
 from model_ablation import create_model
 from model_cpm import create_model_cpm
@@ -21,11 +21,16 @@ args = parser.parse_args()
 
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
 os.environ['CUDA_VISIBLE_DEVICES'] = args.GPU
-
+tf.config.run_functions_eagerly(True)
 ########## Dataset ##############
 print('Generating datasets...')
-training_dataset = load_training_dataset( args.dataset_name, 'training')
-validation_dataset = load_training_dataset(args.dataset_name, 'validation')
+dire = 'cpm' if args.arch == 'cpm' else 'arch' + args.arch
+if dire == 'cpm':
+    training_dataset = load_cpm_dataset(args.dataset_name, 'training')
+    validation_dataset = load_cpm_dataset(args.dataset_name, 'validation')
+else:
+    training_dataset = load_training_dataset( args.dataset_name, 'training')
+    validation_dataset = load_training_dataset(args.dataset_name, 'validation')
 
 print('Generate the model_arch:', args.arch)
 ########### HYPERPARAMETERS ###########
@@ -36,7 +41,7 @@ steps_per_epoch = int(configs['size']*0.8 // BATCH_SIZE)
 val_steps = int(configs['size']*0.1 // BATCH_SIZE)
 step_size = steps_per_epoch * step_factor
 # Your model's name
-dire = 'cpm' if args.arch == 'cpm' else 'arch' + args.arch
+
 print('The model will be saved in directory:', dire)
 
 ########### print Learning Rate ###########
