@@ -8,19 +8,20 @@ import argparse
 from load_tfrecord import load_training_dataset, load_dataset
 import json
 from model_ablation import create_model
+from model_cpm import create_model_cpm
 
-parser = argparse.ArgumentParser(description='use the specified dataset to train the model.')
+parser = argparse.ArgumentParser(description='Choose dataset, architesture and GPU')
 parser.add_argument('dataset_name', type=str, default='FreiHAND_pub_v2',
-                    help='choose one dataset.')
-parser.add_argument('--arch', type=int, default=1,
+                    help='choose one dataset(FreiHAND_pub_v2/Panoptic/HO3D_v2/SHP).')
+parser.add_argument('--arch', type=str, default='1',
                     help='ablation studies. ')
 parser.add_argument('--GPU', type=str, default=0,
-                    help='ablation studies. ')
+                    help='GPU. ')
 args = parser.parse_args()
-choosed = ['FreiHAND_pub_v2', 'Panoptic', 'HO3D_v2']
 
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
 os.environ['CUDA_VISIBLE_DEVICES'] = args.GPU
+
 ########## Dataset ##############
 print('Generating datasets...')
 training_dataset = load_training_dataset( args.dataset_name, 'training')
@@ -35,7 +36,8 @@ steps_per_epoch = int(configs['size']*0.8 // BATCH_SIZE)
 val_steps = int(configs['size']*0.1 // BATCH_SIZE)
 step_size = steps_per_epoch * step_factor
 # Your model's name
-print('The model will be saved in directory:', args.dataset_name, 'arch', args.arch)
+dire = 'cpm' if args.arch == 'cpm' else 'arch' + args.arch
+print('The model will be saved in directory:', dire)
 
 ########### print Learning Rate ###########
 lr_print = showLR()
@@ -46,7 +48,7 @@ clr_triangular = CyclicLR(base_lr=configs['learning_rate'], max_lr=0.1, step_siz
 ######## Tensorboard ############
 # Your log directory
 import datetime
-dir_path = args.dataset_name + '/arch' + str(args.arch)
+dir_path = args.dataset_name + '/' + dire
 logdir = dir_path + "/logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir, write_graph=True)
 
@@ -63,7 +65,10 @@ clbk = [tensorboard_callback, checkpoint, lr_print, clr_triangular]
 ###############Fit#############
 '''policy = tf.keras.mixed_precision.experimental.Policy('mixed_bfloat16')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''
-model = create_model(args.arch)
+if dire == 'cpm':
+    model = create_model_cpm()
+else:
+    model = create_model(int(args.arch))
 if os.path.exists(filepath):
     print('continue to train...')
     model.load_weights(filepath)  # continue to train

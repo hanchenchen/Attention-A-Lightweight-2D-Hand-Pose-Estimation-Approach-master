@@ -78,27 +78,42 @@ def create_model_cpm():
     outc = 21
     features = vgg19(Input)
     ############################### 1
-    x1 = stage1(features)
+    x1 = stage1(features, outc)
     ############################### 2
-    x2 = stage(tf.concat([features, x1], 1), outc)
+    print(tf.concat([features, x1], -1).shape)
+    x2 = stage(tf.concat([features, x1], -1), outc)
     ############################### 3
-    x3 = stage(tf.concat([features, x2], 1), outc)
+    x3 = stage(tf.concat([features, x2], -1), outc)
     ############################### 4
-    x4 = stage(tf.concat([features, x3], 1), outc)
+    x4 = stage(tf.concat([features, x3], -1), outc)
     ############################### 5
-    x5 = stage(tf.concat([features, x4], 1), outc)
+    x5 = stage(tf.concat([features, x4], -1), outc)
     ############################### 6
-    x6 = stage(tf.concat([features, x5], 1), outc)
+    x6 = stage(tf.concat([features, x5], -1), outc)
     ###############################
-    x = tf.stack([x1, x2, x3, x4, x5, x6], axis=1)
+    x = tf.stack([x1, x2, x3, x4, x5, x6], axis=-1)
     # x = tf.cast(x, tf.float32)
     model = tf.keras.Model(Input, x)
     model.compile(optimizer=keras.optimizers.SGD(), loss=rmse, metrics=['accuracy'])
     return model
 
 def rmse(x, y):
+    y = gen_label_heatmap(y)
     x = tf.math.sqrt(tf.keras.losses.MSE(x, y))
     return x
+
+
+def gen_label_heatmap(label):
+    label = torch.Tensor(label)
+    heatmap_size = 224//3
+    grid = tf.zeros((heatmap_size, heatmap_size, 2))  # size:(46,46,2)
+    grid[..., 0] = torch.Tensor(range(self.label_size)).unsqueeze(0)
+    grid[..., 1] = torch.Tensor(range(self.label_size)).unsqueeze(1)
+    grid = grid.unsqueeze(0)
+    labels = label.unsqueeze(-2).unsqueeze(-2)
+    exponent = torch.sum((grid - labels) ** 2, dim=-1)  # size:(21,46,46)
+    heatmaps = torch.exp(-exponent / 2.0 / self.sigma / self.sigma)
+    return heatmaps
 '''policy = tf.keras.mixed_precision.experimental.Policy('float32')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''
 

@@ -9,7 +9,7 @@
   "size": 31836,
   "batch_size": 4,
   "step_factor": 8,
-  "epochs": 25000,
+  "epochs": 20,
   "learning_rate": 1e-4,
   "GPU": "1"
 }
