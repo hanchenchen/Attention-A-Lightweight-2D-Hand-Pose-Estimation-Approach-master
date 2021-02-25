@@ -7,7 +7,7 @@
 
 - Ubuntu 16.04.6 LTS
 - Python 3.8.5 
-- tensorflow 2.2.0
+- tensorflow 2.4.1
 
 #### 数据集
 
