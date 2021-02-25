@@ -5,7 +5,7 @@ import time
 import matplotlib.pyplot as plt
 
 AUTO = tf.data.experimental.AUTOTUNE
-tf.config.run_functions_eagerly(True)
+# tf.config.run_functions_eagerly(True)
 image_type = 'png'
 def _parse_image_function(example_proto):
   # Parse the input tf.train.Example proto using the dictionary above.
@@ -39,6 +39,7 @@ def get_label(sample):
 def get_heatmap(sample):
     label = tf.io.parse_tensor(sample['label'], tf.float32)
     label = tf.reshape(label, [21, 2])
+    label /= 8.
     label = computeHeatmaps(label, [224//8, 224//8])
     label = tf.stack([label]*6, axis = -1)
     return label
@@ -139,7 +140,7 @@ def computeHeatmaps(kps2D, patchSize, std=5.):
     :param kps2d:Nx2 tensor
     :param patchSize: hxw
     :param std: standard dev. for the gaussain
-    :return:Nxhxw heatmap
+    :return:Nxhxw heatmap hxwxN
     '''
     X, Y = tf.meshgrid(tf.range(patchSize[1]), tf.range(patchSize[0]))
     grid = tf.stack([X, Y], axis=2)
@@ -153,6 +154,15 @@ def computeHeatmaps(kps2D, patchSize, std=5.):
     heatmaps = tf.stack(heatmap_list, axis = -1)
     return heatmaps
 from PIL import Image, ImageDraw
+'''heatmaps = computeHeatmaps(tf.fill([1,2], 40/8.), [80/8.,80/8.])
+print(heatmaps.shape)
+for i in range(heatmaps.shape[-1]):
+    print(heatmaps[:,:, i].shape)
+    print(heatmaps[5, 5, i])
+    pil_img = Image.fromarray(heatmaps[:,:,  i].numpy()*255.)
+    pil_img.show()
+    tf.print(heatmaps[:,:, i])'''
+
 
 def hand_pose_estimation(im, coordinates, name):
     # Type: list,   Length:21,      element:[x,y]

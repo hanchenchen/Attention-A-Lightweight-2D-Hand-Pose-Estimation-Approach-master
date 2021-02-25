@@ -46,3 +46,28 @@ def show_hand(im, label, save_path = None):
         im.save(save_path)
     im.show()
     return im
+import numpy as np
+
+def get2DKpsFromHeatmap(heatmap):
+    isNoBatch = True
+    if len(heatmap.shape) == 4:
+        batchSize = heatmap.shape[0]
+        isNoBatch = False
+    elif len(heatmap.shape) == 3:
+        heatmap = np.expand_dims(heatmap, 0)
+        batchSize = 1
+    else:
+        print(heatmap.shape)
+        raise Exception('Invalid shape for heatmap')
+
+    numKps = heatmap.shape[-1]
+    kps2d = np.zeros((batchSize, numKps, 2), dtype=np.uint8)
+    for i in range(batchSize):
+        for kp in range(numKps):
+            y, x = np.unravel_index(np.argmax(heatmap[i][:,:,kp], axis=None), heatmap[i][:,:,kp].shape)
+            kps2d[i, kp, 0] = x
+            kps2d[i, kp, 1] = y
+
+    if isNoBatch:
+        kps2d = kps2d[0]
+    return kps2d
