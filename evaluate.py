@@ -20,6 +20,7 @@ parser.add_argument('--GPU', type=str, default=0,
 args = parser.parse_args()
 
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
+os.environ['CUDA_VISIBLE_DEVICES'] = args.GPU
 dire = args.dataset_name + '/' + ('cpm' if args.arch == 'cpm' else 'arch' + args.arch)
 filepath = dire + '/weights.hdf5'
 print('Evaluating ...', filepath)
