@@ -32,13 +32,14 @@ predictions = {}
 ground_truth = {}
 names, images, labels = load_xyz_dataset(args.dataset_name, 'testing')
 
-results = model.predict(images) # .take(2)) # the number of samples (batch, 28, 28, 21, 6)
+results = model.predict(images) # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
 names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
 if args.arch == 'cpm':
     results = (get2DKpsFromHeatmap(results[:, :, :, :, -1])*8.).tolist()
     print(type(results))
 else:
-    results = [(results*224).tolist()]
+    results = (results*224).tolist()
+    print(type(results),results)
 
 labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]
 print('results:', len(results))
@@ -62,7 +63,7 @@ json.dump(pck_results_sigma, open(dire + '/quantitative_results/pck_results_sigm
 end = time.time()
 print('predicted done in',end - start, 'sec.')
 test_image = raw_images(args.dataset_name, 'testing')
-for i in range(len(results)):
+for i in range(10): # len(results)):
     name = names[i]
     pil_img = test_image[i]
     print('test:', name)

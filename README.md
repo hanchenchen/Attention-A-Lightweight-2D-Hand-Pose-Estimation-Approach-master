@@ -45,13 +45,32 @@ model_cpm：使用Convolutional Pose Machines作为基准。
 
 pck.py: 计算PCK。reference：NSRMhand-master[code][https://github.com/HowieMa/NSRMhand]
 
+##### Train
+
+```
+python train.py (datatset_name) --arch (1-12/cpm) --GPU 0
+```
+
+```
+python train.py HO3D_v2 --arch 1 --GPU 0
+```
+
+##### Evaluate
+
+```
+python evaluate.py (datatset_name) --arch (1-12/cpm) --GPU 0
+```
+
+
+
 #### 测试结果
 
 见文件夹qualitative_results、quantitative_results。
 
-模型权重文件：https://www.dropbox.com/sh/99u7apw2q52mzn2/AAD0JAmOQ8P4ZK-8VDXDR6xqa?dl=0
+模型权重文件：(dataset_name)/(arch_name )/weights.hdf5
+当前完成 HO3D_v2：arch1 arch2 arch4
 
-
+~~https://www.dropbox.com/sh/99u7apw2q52mzn2/AAD0JAmOQ8P4ZK-8VDXDR6xqa?dl=0~~
 
 
 
