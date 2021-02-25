@@ -122,7 +122,10 @@ def create_model(arch_num):
     model.compile(optimizer=keras.optimizers.SGD(), loss=rmse, metrics=['accuracy'])
     return model
 def rmse(x, y):
+    # print(x.shape, y.shape)
     x = tf.math.sqrt(tf.keras.losses.MSE(x, y))
+    # print(x.shape, y.shape)
+    # exit()
     return x
 '''policy = tf.keras.mixed_precision.experimental.Policy('float32')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''

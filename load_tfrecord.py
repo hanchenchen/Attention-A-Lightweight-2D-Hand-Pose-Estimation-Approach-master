@@ -5,6 +5,7 @@ import time
 import matplotlib.pyplot as plt
 
 AUTO = tf.data.experimental.AUTOTUNE
+# tf.config.run_functions_eagerly(True)
 image_type = 'png'
 def _parse_image_function(example_proto):
   # Parse the input tf.train.Example proto using the dictionary above.
@@ -35,12 +36,22 @@ def get_label(sample):
     label = tf.reshape(label, [21, 2])
     return label/224.
 
+def get_heatmap(sample):
+    label = tf.io.parse_tensor(sample['label'], tf.float32)
+    label = tf.reshape(label, [21, 2])
+    label /= 8.
+    label = computeHeatmaps(label, [224//8, 224//8])
+    label = tf.stack([label]*6, axis = -1)
+    return label
+
 def image_label(sample):
 
     return get_image(sample), get_label(sample)
-
+def image_heatmep(sample):
+    return get_image(sample), get_heatmap(sample)
 def name_image_label(sample):
     return get_name(sample), get_image(sample), get_label(sample)
+
 
 def load_training_dataset(dataset_name, name = 'trainig'):
     raw_image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
@@ -58,6 +69,21 @@ def load_training_dataset(dataset_name, name = 'trainig'):
     dataset = dataset.prefetch(AUTO)
     return dataset
 
+def load_cpm_dataset(dataset_name, name = 'trainig'):
+    raw_image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
+    # Create a dictionary describing the features.
+    dataset = raw_image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
+    dataset = dataset.map(map_func=image_heatmep, num_parallel_calls=AUTO)
+    # dataset = dataset.cache()
+    configs = json.load(open('configs/' + dataset_name + '.json'))
+    BATCH_SIZE = configs['batch_size']
+    global image_type
+    image_type = configs['images_path'].split('.')[-1]
+    dataset = dataset.shuffle(BATCH_SIZE*10)
+    dataset = dataset.repeat()
+    dataset = dataset.batch(BATCH_SIZE, drop_remainder=True)
+    dataset = dataset.prefetch(AUTO)
+    return dataset
 # finite and ordered dataset
 def load_dataset(dataset_name, name = 'testing'):
     configs = json.load(open('configs/' + dataset_name + '.json'))
@@ -89,8 +115,54 @@ def load_xyz_dataset(dataset_name, name = 'testing'):
     image_dataset = image_dataset.map(map_func=get_image, num_parallel_calls=AUTO)
     label_dataset = label_dataset.map(map_func=get_label, num_parallel_calls=AUTO)
     return add_batch(name_dataset), add_batch(image_dataset), add_batch(label_dataset) #batch!!!??? 无法理解为什么不加batch就不行
+import tensorflow_probability as tfp
+import numpy as np
+tfd = tfp.distributions
 
+def getOneGaussianHeatmap(inputs):
+    grid = tf.cast(inputs[0], tf.float32)
+    mean = tf.cast(inputs[1], tf.float32)
+    std = tf.cast(inputs[2], tf.float32)
+    # assert std.shape == (1,)
+    assert len(grid.shape) == 2
+    assert grid.shape[-1] == 2
+
+    mvn = tfd.MultivariateNormalDiag(
+        loc=mean,
+        scale_identity_multiplier=std)
+    prob = mvn.prob(grid) * 2 * np.pi * std * std
+
+    return prob
+
+def computeHeatmaps(kps2D, patchSize, std=5.):
+    '''
+    gets the gaussian heat map for the keypoints
+    :param kps2d:Nx2 tensor
+    :param patchSize: hxw
+    :param std: standard dev. for the gaussain
+    :return:Nxhxw heatmap hxwxN
+    '''
+    X, Y = tf.meshgrid(tf.range(patchSize[1]), tf.range(patchSize[0]))
+    grid = tf.stack([X, Y], axis=2)
+    grid = tf.reshape(grid, [-1, 2])
+    grid_tile = tf.tile(tf.expand_dims(grid, 0), [kps2D.shape[0], 1, 1])
+    heatmaps = tf.map_fn(getOneGaussianHeatmap, (grid_tile, kps2D[:, :2], tf.zeros(kps2D.shape[0], 1) + std), dtype=tf.float32)
+    heatmaps = tf.reshape(heatmaps, [kps2D.shape[0], X.shape[0], X.shape[1]])
+    heatmap_list = []
+    for i in range(heatmaps.shape[0]):
+        heatmap_list.append(heatmaps[i])
+    heatmaps = tf.stack(heatmap_list, axis = -1)
+    return heatmaps
 from PIL import Image, ImageDraw
+'''heatmaps = computeHeatmaps(tf.fill([1,2], 40/8.), [80/8.,80/8.])
+print(heatmaps.shape)
+for i in range(heatmaps.shape[-1]):
+    print(heatmaps[:,:, i].shape)
+    print(heatmaps[5, 5, i])
+    pil_img = Image.fromarray(heatmaps[:,:,  i].numpy()*255.)
+    pil_img.show()
+    tf.print(heatmaps[:,:, i])'''
+
 
 def hand_pose_estimation(im, coordinates, name):
     # Type: list,   Length:21,      element:[x,y]

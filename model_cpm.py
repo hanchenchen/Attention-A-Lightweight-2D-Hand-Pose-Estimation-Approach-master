@@ -80,7 +80,6 @@ def create_model_cpm():
     ############################### 1
     x1 = stage1(features, outc)
     ############################### 2
-    print(tf.concat([features, x1], -1).shape)
     x2 = stage(tf.concat([features, x1], -1), outc)
     ############################### 3
     x3 = stage(tf.concat([features, x2], -1), outc)
@@ -94,26 +93,69 @@ def create_model_cpm():
     x = tf.stack([x1, x2, x3, x4, x5, x6], axis=-1)
     # x = tf.cast(x, tf.float32)
     model = tf.keras.Model(Input, x)
-    model.compile(optimizer=keras.optimizers.SGD(), loss=rmse, metrics=['accuracy'])
+    model.compile(optimizer=keras.optimizers.SGD(), loss=rmse, metrics=['accuracy'])#, run_eagerly=True)
+    model.summary()
     return model
-
 def rmse(x, y):
-    y = gen_label_heatmap(y)
+    # print(x.shape, y.shape)
     x = tf.math.sqrt(tf.keras.losses.MSE(x, y))
+    # print(x.shape, y.shape)
+    return x
+'''
+tf.config.run_functions_eagerly(True)
+def rmse(gt, y):
+    print('!!!!!')
+    heatmap = []
+
+    for i in range(y.shape[0]):
+        heatmap.append(computeHeatmaps(gt[i], [224//8, 224//8]))
+    heatmap = tf.stack(heatmap, axis = 0)
+    heatmap = tf.stack([heatmap] * 6, axis=-1)
+    #  heatmap = tf.stack([heatmap], )
+    x = tf.math.sqrt(tf.keras.losses.MSE(heatmap, y))
+    print(heatmap.shape, y.shape, x.shape)
+    exit()
     return x
 
+import tensorflow_probability as tfp
+import numpy as np
+tfd = tfp.distributions
 
-def gen_label_heatmap(label):
-    label = torch.Tensor(label)
-    heatmap_size = 224//3
-    grid = tf.zeros((heatmap_size, heatmap_size, 2))  # size:(46,46,2)
-    grid[..., 0] = torch.Tensor(range(self.label_size)).unsqueeze(0)
-    grid[..., 1] = torch.Tensor(range(self.label_size)).unsqueeze(1)
-    grid = grid.unsqueeze(0)
-    labels = label.unsqueeze(-2).unsqueeze(-2)
-    exponent = torch.sum((grid - labels) ** 2, dim=-1)  # size:(21,46,46)
-    heatmaps = torch.exp(-exponent / 2.0 / self.sigma / self.sigma)
+def getOneGaussianHeatmap(inputs):
+    grid = tf.cast(inputs[0], tf.float32)
+    mean = tf.cast(inputs[1], tf.float32)
+    std = tf.cast(inputs[2], tf.float32)
+    # assert std.shape == (1,)
+    assert len(grid.shape) == 2
+    assert grid.shape[-1] == 2
+
+    mvn = tfd.MultivariateNormalDiag(
+        loc=mean,
+        scale_identity_multiplier=std)
+    prob = mvn.prob(grid) * 2 * np.pi * std * std
+
+    return prob
+
+def computeHeatmaps(kps2D, patchSize, std=5.):
+
+    gets the gaussian heat map for the keypoints
+    :param kps2d:Nx2 tensor
+    :param patchSize: hxw
+    :param std: standard dev. for the gaussain
+    :return:Nxhxw heatmap
+    X, Y = tf.meshgrid(tf.range(patchSize[1]), tf.range(patchSize[0]))
+    grid = tf.stack([X, Y], axis=2)
+    grid = tf.reshape(grid, [-1, 2])
+    grid_tile = tf.tile(tf.expand_dims(grid, 0), [kps2D.shape[0], 1, 1])
+    heatmaps = tf.map_fn(getOneGaussianHeatmap, (grid_tile, kps2D[:, :2], tf.zeros(kps2D.shape[0], 1) + std), dtype=tf.float32)
+    heatmaps = tf.reshape(heatmaps, [kps2D.shape[0], X.shape[0], X.shape[1]])
+    heatmaps = tf.stack(heatmaps.numpy().tolist(), axis = -1)
     return heatmaps
-'''policy = tf.keras.mixed_precision.experimental.Policy('float32')
-tf.keras.mixed_precision.experimental.set_policy(policy)'''
-
+''''''
+from PIL import Image, ImageDraw
+label = tf.fill([21,2], 1)
+heatmap = computeHeatmaps(label, [224, 224])
+print(heatmap)
+pil_img = Image.fromarray(heatmap[1].numpy()*255)
+pil_img.show()''''''
+'''
