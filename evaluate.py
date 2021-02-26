@@ -31,7 +31,7 @@ else:
 model.load_weights(filepath)
 predictions = {}
 ground_truth = {}
-names, images, labels = load_xyz_dataset(args.dataset_name, 'testing')
+names, images, labels = load_xyz_dataset(args.dataset_name,-1, 'testing')
 
 results = model.predict(images) # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
 names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
@@ -61,8 +61,6 @@ json.dump(pck_results_pixel, open(dire + '/quantitative_results/pck_results_pixe
 pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, dire + '/quantitative_results/results_sigma.png')
 print('pck_results_sigma["AUC"]:',pck_results_sigma["AUC"])
 json.dump(pck_results_sigma, open(dire + '/quantitative_results/pck_results_sigma.json', 'w'))
-end = time.time()
-print('predicted done in',end - start, 'sec.')
 test_image = raw_images(args.dataset_name, 'testing')
 for i in range(10): # len(results)):
     name = names[i]
@@ -71,3 +69,5 @@ for i in range(10): # len(results)):
     show_hand(pil_img.copy(), ground_truth[name], dire + '/qualitative_results/gt_' + name)
     show_hand(pil_img, predictions[name]['prd_label'],
               dire + '/qualitative_results/pred_' + name)
+end = time.time()
+print('predicted done in',end - start, 'sec.')
