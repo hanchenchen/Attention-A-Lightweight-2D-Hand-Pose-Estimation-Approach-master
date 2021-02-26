@@ -3,5 +3,5 @@
 *.tfrecords
 # *.hdf5
 __pycache__/
-*arch/
+*arch*/
 *cpm/

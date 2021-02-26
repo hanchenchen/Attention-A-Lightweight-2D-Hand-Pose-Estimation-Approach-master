@@ -72,6 +72,16 @@ python evaluate.py (datatset_name) --arch (1-12/cpm) --GPU 0
 
 ~~https://www.dropbox.com/sh/99u7apw2q52mzn2/AAD0JAmOQ8P4ZK-8VDXDR6xqa?dl=0~~
 
+Architecture1 在不同数据集上的表现
+
+（图1  pck）
+
+在HO3D_v2数据集上，CPM与Architecture1进行比较
+
+（图2 pck） + 模型大小比较
+
+在HO3D_v2数据集上，消融实验，arch1、2、3、4，两个属性：Attention module、Pooling Method
+
 
 
 ##### Reference
