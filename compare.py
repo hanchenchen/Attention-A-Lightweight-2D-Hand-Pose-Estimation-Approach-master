@@ -20,7 +20,6 @@ for i in results_path:
     print(i)
 # plot it
 
-
 Markers = [
     '.' , #	point marker
     ',' , #	pixel marker

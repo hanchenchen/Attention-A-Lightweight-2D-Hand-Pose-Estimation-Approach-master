@@ -1,7 +1,7 @@
 .idea
-*logs/*
+*logs/
 *.tfrecords
 # *.hdf5
 __pycache__/
-*arch*
-*cpm*
+*arch/
+*cpm/
