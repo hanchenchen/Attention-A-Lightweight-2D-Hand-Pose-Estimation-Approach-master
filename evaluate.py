@@ -15,14 +15,17 @@ parser.add_argument('dataset_name', type=str, default='FreiHAND_pub_v2',
                     help='choose one dataset(FreiHAND_pub_v2/Panoptic/HO3D_v2/SHP).')
 parser.add_argument('--arch', type=str, default='1',
                     help='ablation studies. ')
-parser.add_argument('--GPU', type=str, default=0,
+parser.add_argument('--GPU', type=str, default='3',
                     help='GPU. ')
 args = parser.parse_args()
 
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
 os.environ['CUDA_VISIBLE_DEVICES'] = args.GPU
 dire = args.dataset_name + '/' + ('cpm' if args.arch == 'cpm' else 'arch' + args.arch)
-filepath = dire + '/weights.hdf5'
+dire = dire + '/best_loss'
+if not os.path.exists(dire):
+    os.makedirs(dire)
+filepath = dire + '.hdf5'
 print('Evaluating ...', filepath)
 if args.arch == 'cpm':
     model = create_model_cpm()

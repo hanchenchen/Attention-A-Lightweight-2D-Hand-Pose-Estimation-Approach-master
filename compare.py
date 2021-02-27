@@ -12,8 +12,11 @@ from sklearn.metrics import auc
 parser = argparse.ArgumentParser(description='Choose dataset, architesture and GPU')
 parser.add_argument('dataset_name', type=str, default='FreiHAND_pub_v2',
                     help='choose one dataset(FreiHAND_pub_v2/Panoptic/HO3D_v2/SHP).')
-
+parser.add_argument('--GPU', type=str, default='3',
+                    help='GPU. ')
 args = parser.parse_args()
+os.environ['CUDA_VISIBLE_DEVICES'] = args.GPU
+
 
 results_path = tf.io.gfile.glob(args.dataset_name + '/*/' + 'pck_results_pixel.json')
 for i in results_path:

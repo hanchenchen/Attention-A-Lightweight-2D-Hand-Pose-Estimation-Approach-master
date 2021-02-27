@@ -70,7 +70,7 @@ class get_pck(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         predictions = {}
         ground_truth = {}
-        names, images, labels = load_xyz_dataset(args.dataset_name,10,  'validation')
+        names, images, labels = load_xyz_dataset(args.dataset_name, -1,  'validation')
 
         results = self.model.predict(images)  # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
         names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
@@ -88,8 +88,8 @@ class get_pck(keras.callbacks.Callback):
         global best_pck
         if pck_results['sigma_pck'][0.2] >= best_pck:
             best_pck = pck_results['sigma_pck'][0.2]
-            model.save_weights(dir_path + '/best_pck_'+str(best_pck)+'.hdf5')
-            print('update best_pck_weights')
+            model.save_weights(dir_path + '/best_pck.hdf5')
+            print('update best_pck_weights, pck0.2 = ', str(best_pck))
         json_logs = []
         if os.path.exists(dir_path+ '/logs.json'):
             json_logs = json.load(open(dir_path+ '/logs.json'))
@@ -114,6 +114,7 @@ else:
     model = create_model(int(args.arch))
 if os.path.exists(filepath):
     print('continue to train...')
+    print(filepath)
     model.load_weights(filepath)  # continue to train
     if os.path.exists(dir_path + '/logs.json'):
         json_logs = json.load(open(dir_path+ '/logs.json'))
