@@ -66,11 +66,13 @@ checkpoint = keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', save_
 
 best_pck = 0
 ##########Callback###############
+from tqdm import tqdm
 class get_pck(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         predictions = {}
         ground_truth = {}
-        names, images, labels = load_xyz_dataset(args.dataset_name, -1,  'validation')
+        num = 6000 if args.arch == 'cpm' else -1 # cpu memory
+        names, images, labels = load_xyz_dataset(args.dataset_name, num,  'validation')
 
         results = self.model.predict(images)  # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
         names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
@@ -80,10 +82,10 @@ class get_pck(keras.callbacks.Callback):
             results = (results * 224).tolist()
         labels = [(i[0] * 224).tolist() for i in list(labels.as_numpy_iterator())]
         # print(names[0],results[0],labels[0])
-        for i in range(len(results)):
+        for i in tqdm(range(len(results))):
             predictions[names[i]] = {'prd_label': results[i], 'resol': 224}
             ground_truth[names[i]] = labels[i]
-        pck_results = get_pck_with_sigma(predictions, ground_truth)
+        pck_results = get_pck_with_sigma(predictions, ground_truth, [0.05, 0.1, 0.15, 0.2])
         print("End epoch ", epoch, " of training, ", pck_results)
         global best_pck
         if pck_results['sigma_pck'][0.2] >= best_pck:

@@ -4,7 +4,7 @@ import logging
 import matplotlib.pyplot as plt
 import json
 from sklearn.metrics import auc
-def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = [0.05, 0.1, 0.15, 0.2], save_path = None ):
+def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = None, save_path = None ):
     """
     Get PCK with different sigma threshold
     :param predict_labels_dict:  dict  element:  'img_name':{'prd_label':[list, coordinates of 21 keypoints],
@@ -55,7 +55,7 @@ def get_pck_with_sigma(predict_labels_dict, gt_labels, sigma_list = [0.05, 0.1, 
         plt.show(block=False)
         # plt.close(fig)
     pck_res = pck_res.tolist()
-    return {'sigma_pck': {interval[i]: pck_res[i] for i in range(len(pck_res))}, 'AUC': AUC}
+    return {'sigma_pck': {str(interval[i]): pck_res[i] for i in range(len(pck_res))}, 'AUC': AUC}
 
 def get_pck_with_pixel(predict_labels_dict, gt_labels, save_path = None):
     """
@@ -106,7 +106,7 @@ def get_pck_with_pixel(predict_labels_dict, gt_labels, save_path = None):
         plt.show(block=False)
         # plt.close(fig)
     pck_res = pck_res.tolist()
-    return {'pixel_pck': {interval[i]: pck_res[i] for i in range(len(pck_res))}, 'AUC': AUC}
+    return {'pixel_pck': {str(interval[i]): pck_res[i] for i in range(len(pck_res))}, 'AUC': AUC}
 
 def PCK(predict, target, bb_size=256, sigma=0.1):
     """

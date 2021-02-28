@@ -94,7 +94,7 @@ def create_model_cpm():
     # x = tf.cast(x, tf.float32)
     model = tf.keras.Model(Input, x)
     model.compile(optimizer=keras.optimizers.SGD(), loss=rmse, metrics=['accuracy'])#, run_eagerly=True)
-    model.summary()
+    # model.summary()
     return model
 def rmse(x, y):
     # print(x.shape, y.shape)

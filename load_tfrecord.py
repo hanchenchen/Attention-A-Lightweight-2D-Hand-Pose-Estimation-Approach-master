@@ -107,7 +107,7 @@ def load_xyz_dataset(dataset_name, num, name = 'testing'):
     sample_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
     if num > 0:
         sample_dataset = sample_dataset.take(num)
-    sample_dataset = sample_dataset.shuffle(7)
+    # sample_dataset = sample_dataset.shuffle(7)
     sample_dataset = sample_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
 
     name_dataset = sample_dataset.map(map_func=get_name, num_parallel_calls=AUTO)

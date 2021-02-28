@@ -36,32 +36,33 @@ predictions = {}
 ground_truth = {}
 names, images, labels = load_xyz_dataset(args.dataset_name,-1, 'testing')
 
-results = model.predict(images) # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
-names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
+results = model.predict(images.take(6000), batch_size = 1, steps = 6000, verbose = 1) # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
+
 if args.arch == 'cpm':
     results = (get2DKpsFromHeatmap(results[:, :, :, :, -1])*8.).tolist()
     print(type(results))
 else:
     results = (results*224).tolist()
-    print(type(results),results)
-
+    print(type(results))
+names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
 labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]
-print('results:', len(results))
-# print(names[0],results[0],labels[0])
-
-for i in range(len(results)):
+print('results:', len(results), len(names), len(labels))
+print(names[0],results[0],labels[0])
+from tqdm import tqdm
+for i in tqdm(range(len(results))):
     predictions[names[i]] = {'prd_label': results[i], 'resol': 224}
     ground_truth[names[i]] = labels[i]
+    # print(predictions[names[i]])
 if not os.path.exists(dire + '/quantitative_results'):
     os.makedirs(dire + '/quantitative_results')
 if not os.path.exists(dire + '/qualitative_results'):
     os.makedirs(dire + '/qualitative_results')
 json.dump(predictions, open(dire + '/quantitative_results/predictions.json', 'w'))
 json.dump(ground_truth, open(dire + '/quantitative_results/ground_truth.json', 'w'))
-pck_results_pixel = get_pck_with_pixel(predictions, ground_truth, dire + '/quantitative_results/results_pixel.png')
+pck_results_pixel = get_pck_with_pixel(predictions, ground_truth, save_path = dire + '/quantitative_results/results_pixel.png')
 print('pck_results_pixel["AUC"]:', pck_results_pixel['AUC'])
 json.dump(pck_results_pixel, open(dire + '/quantitative_results/pck_results_pixel.json', 'w'))
-pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, dire + '/quantitative_results/results_sigma.png')
+pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, save_path = dire + '/quantitative_results/results_sigma.png')
 print('pck_results_sigma["AUC"]:',pck_results_sigma["AUC"])
 json.dump(pck_results_sigma, open(dire + '/quantitative_results/pck_results_sigma.json', 'w'))
 test_image = raw_images(args.dataset_name, 'testing')
