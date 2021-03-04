@@ -56,12 +56,12 @@ lr_print = showLR()
 import datetime
 dir_path = args.dataset_name + '/' + dire
 logdir = dir_path + "/logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir, write_graph=True)
+tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir, write_graph=False)
 
 ######## Model Save #############
 # Your saving directory
-filepath = dir_path + '/best_loss.hdf5'
-checkpoint = keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', save_best_only=True, verbose=1,
+filepath = dir_path + '/weights.02-0.07653.hdf5' # !! last weights
+checkpoint = keras.callbacks.ModelCheckpoint(dir_path + '/weights.{epoch:02d}-{val_loss:.5f}.hdf5', monitor='val_loss', save_best_only=False, verbose=1,
                                              save_weights_only=True)
 
 best_pck = 0
@@ -71,10 +71,10 @@ class get_pck(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         predictions = {}
         ground_truth = {}
-        num = 6000 if args.arch == 'cpm' else -1 # cpu memory
+        num = 6000 # if args.arch == 'cpm' else -1 # cpu memory
         names, images, labels = load_xyz_dataset(args.dataset_name, num,  'validation')
 
-        results = self.model.predict(images)  # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
+        results = self.model.predict(images, steps = num, verbose = 1)  # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
         names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
         if args.arch == 'cpm':
             results = (get2DKpsFromHeatmap(results[:, :, :, :, -1]) * 8.).tolist()
@@ -88,9 +88,9 @@ class get_pck(keras.callbacks.Callback):
         pck_results = get_pck_with_sigma(predictions, ground_truth, [0.05, 0.1, 0.15, 0.2])
         print("End epoch ", epoch, " of training, ", pck_results)
         global best_pck
-        if pck_results['sigma_pck'][0.2] >= best_pck:
-            best_pck = pck_results['sigma_pck'][0.2]
-            model.save_weights(dir_path + '/best_pck.hdf5')
+        if pck_results['sigma_pck']['0.2'] >= best_pck:
+            best_pck = pck_results['sigma_pck']['0.2']
+            model.save_weights(dir_path + '/pck.'+str(epoch)+'-'+str(best_pck)+'.hdf5')
             print('update best_pck_weights, pck0.2 = ', str(best_pck))
         json_logs = []
         if os.path.exists(dir_path+ '/logs.json'):
@@ -122,7 +122,10 @@ if os.path.exists(filepath):
         json_logs = json.load(open(dir_path+ '/logs.json'))
         lr = json_logs[-1]['lr']
         initial_epoch = len(json_logs)
+        for i in range(initial_epoch):
+            best_pck = max(best_pck, json_logs[i]['pck_results']['sigma_pck']['0.2'])
     print('initial_epoch:', initial_epoch)
+    print('best_pck:', best_pck)
 
 
 ############ Cyclical Learning Rate ###############

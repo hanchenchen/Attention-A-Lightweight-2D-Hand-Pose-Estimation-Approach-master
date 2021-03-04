@@ -115,8 +115,9 @@ def load_xyz_dataset(dataset_name, num, name = 'testing'):
     label_dataset = sample_dataset.map(map_func=get_label, num_parallel_calls=AUTO)
     return add_batch(name_dataset), add_batch(image_dataset), add_batch(label_dataset) #batch!!!??? 无法理解为什么不加batch就不行
 # '''
+
 import tensorflow_probability as tfp
-tfd = tfp.distributions
+
 # '''
 import numpy as np
 def getOneGaussianHeatmap(inputs):
@@ -126,7 +127,7 @@ def getOneGaussianHeatmap(inputs):
     # assert std.shape == (1,)
     assert len(grid.shape) == 2
     assert grid.shape[-1] == 2
-
+    tfd = tfp.distributions
     mvn = tfd.MultivariateNormalDiag(
         loc=mean,
         scale_identity_multiplier=std)

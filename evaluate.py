@@ -22,7 +22,7 @@ args = parser.parse_args()
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
 os.environ['CUDA_VISIBLE_DEVICES'] = args.GPU
 dire = args.dataset_name + '/' + ('cpm' if args.arch == 'cpm' else 'arch' + args.arch)
-dire = dire + '/best_loss'
+dire = dire + '/weights.20-0.05732'
 if not os.path.exists(dire):
     os.makedirs(dire)
 filepath = dire + '.hdf5'
@@ -35,8 +35,9 @@ model.load_weights(filepath)
 predictions = {}
 ground_truth = {}
 names, images, labels = load_xyz_dataset(args.dataset_name,-1, 'testing')
-
-results = model.predict(images.take(6000), batch_size = 1, steps = 6000, verbose = 1) # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
+names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
+labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]
+results = model.predict(images, batch_size = 1, steps = len(names), verbose = 1) # .take(10)) # the number of samples (batch, 28, 28, 21, 6)
 
 if args.arch == 'cpm':
     results = (get2DKpsFromHeatmap(results[:, :, :, :, -1])*8.).tolist()
@@ -44,8 +45,7 @@ if args.arch == 'cpm':
 else:
     results = (results*224).tolist()
     print(type(results))
-names = [''.join(str(j) for j in i)[2:-1] for i in list(names.as_numpy_iterator())]
-labels = [(i[0]*224).tolist() for i in list(labels.as_numpy_iterator())]
+
 print('results:', len(results), len(names), len(labels))
 print(names[0],results[0],labels[0])
 from tqdm import tqdm
@@ -66,7 +66,9 @@ pck_results_sigma = get_pck_with_sigma(predictions, ground_truth, save_path = di
 print('pck_results_sigma["AUC"]:',pck_results_sigma["AUC"])
 json.dump(pck_results_sigma, open(dire + '/quantitative_results/pck_results_sigma.json', 'w'))
 test_image = raw_images(args.dataset_name, 'testing')
-for i in range(10): # len(results)):
+for i in tqdm(range(len(results))):
+    if i%600:
+        continue
     name = names[i]
     pil_img = test_image[i]
     print('test:', name)
