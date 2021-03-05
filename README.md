@@ -22,11 +22,11 @@ Pytorch版本：https://github.com/hanchenchen/Attention-A-Lightweight-2D-Hand-P
 
 #### 测评指标
 
-**PCK**：*Probability of Correct Keypoint within a Nor- malized Distance Threshold*
+**PCK**：*Probability of Correct Keypoint within a Normalized Distance Threshold*
 
 #### 测试大纲
 
-使用**Convolutional Pose Machines**作为参考的基准，测试论文中提出的architecture是否有良好的性能
+使用**Convolutional Pose Machines**(CPM)作为参考的基准，测试论文中提出的architecture是否有良好的性能
 
 采用消融实验方法，对论文中使用的 Attention Augmented Inverted Bottleneck Block、Blur (Pooling Method)、Mish(Activation Function)进行测试。
 
@@ -100,24 +100,24 @@ Architecture1 在不同数据集上的表现，Epoch = 15， 取val_loss最优�
     - 仅删除了DenseNet结构中的aug_block，保留了最后一层aug_block
  - Blur Pooling 使有 Self-Attention 结构的Arch1 表现优于Arch4；但在无 Self-Attention 结构的Arch2、3中，与Average Pooling 表现相似。
 
-#####Weights
+##### Weights
 
 ~~https://www.dropbox.com/sh/99u7apw2q52mzn2/AAD0JAmOQ8P4ZK-8VDXDR6xqa?dl=0~~
 
 
-##### Reference
+#### Reference
 
-Santavas N, Kansizoglou I, Bampis L, et al. Attention! a lightweight 2d hand pose estimation approach[J]. IEEE Sensors Journal, 2020. [[code]][https://github.com/nsantavas/Attention-A-Lightweight-2D-Hand-Pose-Estimation-Approach]
+[1] Santavas N, Kansizoglou I, Bampis L, et al. Attention! a lightweight 2d hand pose estimation approach[J]. IEEE Sensors Journal, 2020. [[code]][https://github.com/nsantavas/Attention-A-Lightweight-2D-Hand-Pose-Estimation-Approach]
 
-Chen Y, Ma H, Kong D, et al. Nonparametric structure regularization machine for 2D hand pose estimation[C]//Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision. 2020: 381-390. [code][https://github.com/HowieMa/NSRMhand]
+[2] Chen Y, Ma H, Kong D, et al. Nonparametric structure regularization machine for 2D hand pose estimation[C]//Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision. 2020: 381-390. [code][https://github.com/HowieMa/NSRMhand]
 
-Wei S E, Ramakrishna V, Kanade T, et al. Convolutional pose machines[C]//Proceedings of the IEEE conference on Computer Vision and Pattern Recognition. 2016: 4724-4732.
+[3] Wei S E, Ramakrishna V, Kanade T, et al. Convolutional pose machines[C]//Proceedings of the IEEE conference on Computer Vision and Pattern Recognition. 2016: 4724-4732.
 
-Simon T, Joo H, Matthews I, et al. Hand keypoint detection in single images using multiview bootstrapping[C]//Proceedings of the IEEE conference on Computer Vision and Pattern Recognition. 2017: 1145-1153. [Panoptic][http://domedb.perception.cs.cmu.edu/handdb.html]
+[4] Simon T, Joo H, Matthews I, et al. Hand keypoint detection in single images using multiview bootstrapping[C]//Proceedings of the IEEE conference on Computer Vision and Pattern Recognition. 2017: 1145-1153. [Panoptic][http://domedb.perception.cs.cmu.edu/handdb.html]
 
-Zimmermann C, Ceylan D, Yang J, et al. Freihand: A dataset for markerless capture of hand pose and shape from single rgb images[C]//Proceedings of the IEEE/CVF International Conference on Computer Vision. 2019: 813-822. [FreiHAND][https://lmb.informatik.uni-freiburg.de/projects/freihand/]
+[5] Zimmermann C, Ceylan D, Yang J, et al. Freihand: A dataset for markerless capture of hand pose and shape from single rgb images[C]//Proceedings of the IEEE/CVF International Conference on Computer Vision. 2019: 813-822. [FreiHAND][https://lmb.informatik.uni-freiburg.de/projects/freihand/]
 
-Zhang J, Jiao J, Chen M, et al. 3d hand pose tracking and estimation using stereo matching[J]. arXiv preprint arXiv:1610.07214, 2016. [SHP]
+[6] Zhang J, Jiao J, Chen M, et al. 3d hand pose tracking and estimation using stereo matching[J]. arXiv preprint arXiv:1610.07214, 2016. [SHP]
 
-Shivakumar S H, Oberweger M, Rad M, et al. HO-3D: A Multi-User, Multi-Object Dataset for Joint 3D Hand-Object Pose Estimation[J]. arXiv. org e-Print archive, 2019. [HO3D_v2]
+[7] Shivakumar S H, Oberweger M, Rad M, et al. HO-3D: A Multi-User, Multi-Object Dataset for Joint 3D Hand-Object Pose Estimation[J]. arXiv. org e-Print archive, 2019. [HO3D_v2]
 
