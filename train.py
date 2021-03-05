@@ -71,7 +71,7 @@ class get_pck(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         predictions = {}
         ground_truth = {}
-        num = 6000 # if args.arch == 'cpm' else -1 # cpu memory
+        num = min(6000, int(configs['size']*0.1)) # if args.arch == 'cpm' else -1 # cpu memory
         names, images, labels = load_xyz_dataset(args.dataset_name, num,  'validation')
 
         results = self.model.predict(images, steps = num, verbose = 1)  # .take(10)) # the number of samples (batch, 28, 28, 21, 6)

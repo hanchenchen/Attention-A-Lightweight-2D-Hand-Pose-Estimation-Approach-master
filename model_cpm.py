@@ -101,8 +101,8 @@ def rmse(x, y):
     x = tf.math.sqrt(tf.keras.losses.MSE(x, y))
     # print(x.shape, y.shape)
     return x
-model = create_model_cpm()
-model.summary()
+'''model = create_model_cpm()
+model.summary()'''
 '''
 tf.config.run_functions_eagerly(True)
 def rmse(gt, y):
