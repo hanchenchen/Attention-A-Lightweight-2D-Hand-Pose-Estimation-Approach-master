@@ -100,25 +100,26 @@ def add_batch(dataset):
     dataset = dataset.batch(1, drop_remainder=True)
     dataset = dataset.prefetch(AUTO)
     return dataset
-def load_xyz_dataset(dataset_name, name = 'testing'):
+def load_xyz_dataset(dataset_name, num, name = 'testing'):
     configs = json.load(open('configs/' + dataset_name + '.json'))
     global image_type
     image_type = configs['images_path'].split('.')[-1]
-    name_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
-    image_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
-    label_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
-    # Create a dictionary describing the features.
-    name_dataset = name_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
-    image_dataset = image_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
-    label_dataset = label_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
-    name_dataset = name_dataset.map(map_func=get_name, num_parallel_calls=AUTO)
-    image_dataset = image_dataset.map(map_func=get_image, num_parallel_calls=AUTO)
-    label_dataset = label_dataset.map(map_func=get_label, num_parallel_calls=AUTO)
-    return add_batch(name_dataset), add_batch(image_dataset), add_batch(label_dataset) #batch!!!??? 无法理解为什么不加batch就不行
-import tensorflow_probability as tfp
-import numpy as np
-tfd = tfp.distributions
+    sample_dataset = tf.data.TFRecordDataset(dataset_name + '/' + name + '.tfrecords')
+    if num > 0:
+        sample_dataset = sample_dataset.take(num)
+    # sample_dataset = sample_dataset.shuffle(7)
+    sample_dataset = sample_dataset.map(map_func=_parse_image_function, num_parallel_calls=AUTO)
 
+    name_dataset = sample_dataset.map(map_func=get_name, num_parallel_calls=AUTO)
+    image_dataset = sample_dataset.map(map_func=get_image, num_parallel_calls=AUTO)
+    label_dataset = sample_dataset.map(map_func=get_label, num_parallel_calls=AUTO)
+    return add_batch(name_dataset), add_batch(image_dataset), add_batch(label_dataset) #batch!!!??? 无法理解为什么不加batch就不行
+# '''
+
+import tensorflow_probability as tfp
+
+# '''
+import numpy as np
 def getOneGaussianHeatmap(inputs):
     grid = tf.cast(inputs[0], tf.float32)
     mean = tf.cast(inputs[1], tf.float32)
@@ -126,7 +127,7 @@ def getOneGaussianHeatmap(inputs):
     # assert std.shape == (1,)
     assert len(grid.shape) == 2
     assert grid.shape[-1] == 2
-
+    tfd = tfp.distributions
     mvn = tfd.MultivariateNormalDiag(
         loc=mean,
         scale_identity_multiplier=std)

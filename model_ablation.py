@@ -39,7 +39,8 @@ def ARB(inp, fout, dk, dv, nh, kernel, aug=True):
     x = layers.Activation(arch['activation_function'])(x)
     if aug == True:
         a = aug_block(x, fout * 4, dk, dv, nh, kernel)
-        x = layers.Add()([a, x])
+        # x = layers.Add()([a, x])
+        x = tf.concat([a, x], axis=-1)
     x = conv(x, kernel=1, filt=fout, pad='same')
     x = layers.BatchNormalization(axis=-1, fused=True)(x)
     x = layers.Activation(arch['activation_function'])(x)
@@ -75,7 +76,7 @@ def conv_block(x, growth_rate, kernel_size = 3):
 
 def dense(x, kernel, num, nh=4, filters=10, aug=True):
     x_list = [x]
-    if not arch['attention_module']:
+    if arch['attention_module'] == 0:
         aug = False
     for i in range(num):
         x = ARB(x, filters, 0.1, 0.1, nh, kernel, aug)
@@ -129,7 +130,9 @@ def rmse(x, y):
     return x
 '''policy = tf.keras.mixed_precision.experimental.Policy('float32')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''
-'''for i in range(1,13):
-    model = create_model(i)
-    print('Create_model arch:',i)'''
+# for i in range(1,13):
+#     model = create_model(i)
+#     print('Create_model arch:',i)
+#     model.summary()
+# model = create_model(4)
 # model.summary()

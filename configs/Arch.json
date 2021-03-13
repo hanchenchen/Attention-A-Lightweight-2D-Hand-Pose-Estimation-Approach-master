@@ -58,5 +58,15 @@
   "attention_module": 1,
   "pooling_method":"Max",
   "activation_function":"relu"
+}, {
+  "name": "Arch 13",
+  "attention_module": 2,
+  "pooling_method":"Blur",
+  "activation_function":"Mish"
+}, {
+  "name": "Arch 14",
+  "attention_module": 2,
+  "pooling_method":"Average",
+  "activation_function":"Mish"
 }]
 
