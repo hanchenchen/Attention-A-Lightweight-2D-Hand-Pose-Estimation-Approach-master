@@ -22,7 +22,7 @@ args = parser.parse_args()
 configs = json.load(open('configs/' + args.dataset_name + '.json'))
 os.environ['CUDA_VISIBLE_DEVICES'] = args.GPU
 dire = args.dataset_name + '/' + ('cpm' if args.arch == 'cpm' else 'arch' + args.arch)
-dire = dire + '/weights.15-0.05724'
+dire = dire + '/weights.13-0.07412'
 if not os.path.exists(dire):
     os.makedirs(dire)
 filepath = dire + '.hdf5'

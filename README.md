@@ -86,7 +86,7 @@ python evaluate.py (datatset_name) --arch (1-12/cpm) --GPU 0
 
 Architecture1 在不同数据集上的表现，Epoch = 15， 取val_loss最优模型。
 
-（图2 pck）
+<img src="readme_images/Arch1_results.png" class="centerImage"/>
 
 
 #### 结果分析
