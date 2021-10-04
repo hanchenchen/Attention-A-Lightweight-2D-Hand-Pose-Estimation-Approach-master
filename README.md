@@ -95,9 +95,6 @@ Architecture1 在不同数据集上的表现，Epoch = 15， 取val_loss最优�
     - CPM使用了Heatmap，有利于坐标的学习。论文提出的结构没有使用Heatmap。
  - Arch1 与 Arch2 进行比较，添加了 Self-Attention 结构后反而PCK下降，考虑了如下原因：
     - 原论文中使用了SGD优化器，而 SGD 的缺点在于收敛速度慢，可能在鞍点处震荡。这可能导致了Arch1的loss达到0.06之后便难以下降。
-    - Self-Attention的输出与Conv的输出是通过Add合在一起，而不是concatenate，可能是相加的过程中导致信息丢失。
-    - Self-Attention 结构可能难以理解有较多障碍物、自我遮挡的数据集（HO3D_v2）。
-    - 仅删除了DenseNet结构中的aug_block，保留了最后一层aug_block
  - Blur Pooling 使有 Self-Attention 结构的Arch1 表现优于Arch4；但在无 Self-Attention 结构的Arch2、3中，与Average Pooling 表现相似。
 
 ##### Weights
