@@ -87,7 +87,7 @@ def dense(x, kernel, num, nh=4, filters=10, aug=True):
 
 def create_model(arch_num):
     global arch
-    arch = json.load(open('configs/arch.json'))[arch_num]
+    arch = json.load(open('configs/Arch.json'))[arch_num]
 
     Input = layers.Input(shape=(224, 224, 3), dtype=tf.float32)  # 224
     x = dense(Input, 5, num=8, aug=False)
@@ -130,9 +130,11 @@ def rmse(x, y):
     return x
 '''policy = tf.keras.mixed_precision.experimental.Policy('float32')
 tf.keras.mixed_precision.experimental.set_policy(policy)'''
-# for i in range(1,13):
-#     model = create_model(i)
-#     print('Create_model arch:',i)
-#     model.summary()
-# model = create_model(4)
-# model.summary()
+
+if __name__ == "__main__":
+    # for i in range(1,13):
+    #     model = create_model(i)
+    #     print('Create_model arch:',i)
+    #     model.summary()
+    model = create_model(1)
+    model.summary()
